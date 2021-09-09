@@ -6,6 +6,7 @@ To test the library tool online visit: https://mybinder.org/v2/gh/tintiron/taint
 
 ## Example Usage 
 # Example 1
+.. code-block:: python
 import taintedtx
 import pandas as pd
 tt = taintedtx.TaintedTx(path='sampledata/')  # choose sampledata database
@@ -13,6 +14,7 @@ tt.prepare_data(limitoption='2010to2011')  # prepare dataframe of transactions i
 
 
 # Example 2
+.. code-block:: python
 import taintedtx
 import pandas as pd
 tt = taintedtx.TaintedTx(path='sampledata/')
