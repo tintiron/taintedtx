@@ -1,4 +1,4 @@
-""" Starting """
+"""This is the snippet of codes we use to export blockchain data from blocksci"""
 import blocksci
 import pandas as pd
 import numpy as np
