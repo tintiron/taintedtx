@@ -43,17 +43,11 @@ Notable Functions
 Example Usage 
 =======================================
 
-Starting Binder
----------------------------------------
-
->>> # pip install pandas   # may also work fine but some of the pandas functions we used maybe deprecated in the newer version. 
->>> pip install -r requirements.txt
-
 Example 1
 ---------------------------------------
 >>> import taintedtx
 >>> tt = taintedtx.TaintedTX(path='sampledata/')  # choose sampledata database
->>> tt.prepare_data(limitoption='2010to2011')  # prepare dataframe of transactions in 2010 and 2011
+>>> tt.prepare_data(limit_option='2009to2010')  # prepare dataframe of transactions in 2009 and 2010
 
 Example 2
 ---------------------------------------
