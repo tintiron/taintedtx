@@ -101,7 +101,7 @@ class TaintedTX(object):
                 result_df = result_df.reindex(self.adr)
             if type(self.adr[0]) == str and any([re.search('[a-zA-Z]', stuff) is not None for stuff in self.adr]):  # adr hash search
 
-                result_df = self.adr_check('hash', self.adr)
+                result_df = self.adr_check('adr_hash', self.adr)
 
                 if len(result_df) != len(self.adr):
                     logging.warning('adr found not equal to adr input')
@@ -148,6 +148,7 @@ class TaintedTX(object):
         """
 
         result_df = pd.DataFrame()
+        check = pd.DataFrame()
         for year in self.year_list:
             address_df = read_option(address_filename, self.path + str(year) + '/')
             if input_type == 'adr_index':
@@ -171,6 +172,7 @@ class TaintedTX(object):
         """
 
         result_df = pd.DataFrame()
+        check = pd.DataFrame()
         for year in self.year_list:
             df = read_option(tx_hash_filename, self.path + str(year) + '/')
             if input_type == 'tx_index':
