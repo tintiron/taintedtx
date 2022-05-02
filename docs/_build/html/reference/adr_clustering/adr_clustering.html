@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Address Clustering &mdash; taintedtx latest documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Transaction Analysis" href="../analysis/analysis.html" />
+    <link rel="prev" title="TaintedTX" href="../taintedtx/taintedtx.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> taintedtx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html">Example 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-2">Example 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-3">Example 3</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference.html">Library Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../taintedtx/taintedtx.html">TaintedTX</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Address Clustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../analysis/analysis.html">Transaction Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pets/pets.html">PETs Transaction Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../lightning/lightning.html">Lightning Transaction Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../find_control/find_control.html">Control Groups Finding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../export/export.html">Database Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utility/utility.html">Utility Functions</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">taintedtx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../reference.html">Library Reference</a> &raquo;</li>
+      <li>Address Clustering</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/reference/adr_clustering/adr_clustering.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-utility.adr_clustering">
+<span id="address-clustering"></span><h1>Address Clustering<a class="headerlink" href="#module-utility.adr_clustering" title="Permalink to this headline"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="utility.adr_clustering.adr_cluster">
+<span class="sig-prename descclassname"><span class="pre">utility.adr_clustering.</span></span><span class="sig-name descname"><span class="pre">adr_cluster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heuristic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tx_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tx_output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coinjoin_tx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/utility/adr_clustering.html#adr_cluster"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utility.adr_clustering.adr_cluster" title="Permalink to this definition"></a></dt>
+<dd><p>A simple input sharing clustering on a group of starting adr (the group input imply that all addresses in the list belong to the same entity)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> – List or string of address index to perform clustering.</p></li>
+<li><p><strong>heuristic</strong> – Either ‘multi-input’ or ‘multi-output’ to select clustering heuristic to perform.</p></li>
+<li><p><strong>tx_input</strong> – DataFrame containing tx input data.</p></li>
+<li><p><strong>tx_output</strong> – DataFrame containing tx output data.</p></li>
+<li><p><strong>depth_limit</strong> – Number for how many clustering loop to be performed.</p></li>
+<li><p><strong>coinjoin_tx</strong> – Optional coinjoin transaction dataframe for preventing the coinjoin transaction clustering.</p></li>
+<li><p><strong>exclude</strong> – List of addresses to exclude from clustering.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame containing addresses belonging to the same cluster.</p>
+</dd>
+</dl>
+<p>tx_input and tx_output recommends trimming the data first and remove unnecessary data first to improve speed performance using something similar as the below script snippet
+tx_input = tx_input.drop(columns=[‘input_value’,’spent_index’]).set_index(‘tx_index’)  # remove unused column
+tx_input = tx_input.reset_index().drop_duplicates().set_index(‘tx_index’)  # remove duplicate adr in same tx
+tx_input2 = tx_input.groupby(‘tx_index’).count() # check for a single input tx
+tx_input2 = tx_input2[tx_input2[‘adr_index’] &gt; 1]
+tx_input = tx_input[tx_input.index.isin(tx_input2.index)]  # remove single input</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utility.adr_clustering.clustering">
+<span class="sig-prename descclassname"><span class="pre">utility.adr_clustering.</span></span><span class="sig-name descname"><span class="pre">clustering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">done</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coinjoin_tx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/utility/adr_clustering.html#clustering"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utility.adr_clustering.clustering" title="Permalink to this definition"></a></dt>
+<dd><p>Address clustering process</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster</strong> – DataFrame containing clustered adr for adding more.</p></li>
+<li><p><strong>check</strong> – List of adr to perform clustering.</p></li>
+<li><p><strong>done</strong> – List of adr already clustered.</p></li>
+<li><p><strong>depth</strong> – Number of the current loop.</p></li>
+<li><p><strong>df</strong> – Either tx_input or tx_output</p></li>
+<li><p><strong>coinjoin_tx</strong> – coinjoin transaction dataframe, can be empty.</p></li>
+<li><p><strong>exclude</strong> – List of addresses to exclude from clustering.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame containing addresses belonging to the same cluster.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../taintedtx/taintedtx.html" class="btn btn-neutral float-left" title="TaintedTX" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../analysis/analysis.html" class="btn btn-neutral float-right" title="Transaction Analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Tin.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

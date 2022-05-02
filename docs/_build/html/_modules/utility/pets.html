@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utility.pets &mdash; taintedtx latest documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> taintedtx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html">Example 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-2">Example 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-3">Example 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/reference.html">Library Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">taintedtx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>utility.pets</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for utility.pets</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">bs4</span> <span class="k">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">chained_assignment</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># default=&#39;warn&#39;</span>
+
+<span class="n">chipmixer_start_tx_index</span> <span class="o">=</span> <span class="mi">217892955</span>
+
+
+<div class="viewcode-block" id="coinjoin_find"><a class="viewcode-back" href="../../reference/pets/pets.html#utility.pets.coinjoin_find">[docs]</a><span class="k">def</span> <span class="nf">coinjoin_find</span><span class="p">(</span><span class="n">wasabi_pattern</span><span class="p">,</span> <span class="n">tx_input</span><span class="p">,</span> <span class="n">tx_output</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Profiling potential transactions involving coinjoin.</span>
+
+<span class="sd">    :param wasabi_pattern: list of 5 patterns [criteria type (&#39;value&#39; or &#39;proportion&#39;), tx value, input, output, denomination output,change output].</span>
+<span class="sd">    :param tx_input: tx_input data.</span>
+<span class="sd">    :param tx_output: tx_output data.</span>
+
+<span class="sd">    :return: Dataframe with transactions classified as mixer transactions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">taintedtx</span>
+
+    <span class="n">adr_witness_pubkeyhash</span> <span class="o">=</span> <span class="n">taintedtx</span><span class="o">.</span><span class="n">adr_witness_pubkeyhash</span>
+
+    <span class="n">coinjoin_tx</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="c1"># wasabi coinjoin_tx</span>
+    <span class="n">tx_input</span><span class="p">[</span><span class="s1">&#39;adr_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tx_input</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">%</span> <span class="mi">10</span>
+    <span class="n">tx_output</span><span class="p">[</span><span class="s1">&#39;adr_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tx_output</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">%</span> <span class="mi">10</span>
+
+    <span class="n">tx_input</span> <span class="o">=</span> <span class="n">tx_input</span><span class="p">[</span><span class="o">~</span><span class="n">tx_input</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tx_input</span><span class="p">[</span><span class="n">tx_input</span><span class="p">[</span><span class="s1">&#39;adr_type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">adr_witness_pubkeyhash</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>  <span class="c1"># general 5, address type must be this type only</span>
+    <span class="n">tx_output</span> <span class="o">=</span> <span class="n">tx_output</span><span class="p">[</span><span class="o">~</span><span class="n">tx_output</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tx_output</span><span class="p">[</span><span class="n">tx_output</span><span class="p">[</span><span class="s1">&#39;adr_type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">adr_witness_pubkeyhash</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>  <span class="c1"># general 5, address type must be this type only</span>
+    <span class="n">tx_input</span> <span class="o">=</span> <span class="n">tx_input</span><span class="p">[</span><span class="n">tx_input</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tx_output</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">tx_output</span> <span class="o">=</span> <span class="n">tx_output</span><span class="p">[</span><span class="n">tx_output</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tx_input</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="c1"># tx value</span>
+    <span class="n">tx_value</span> <span class="o">=</span> <span class="n">tx_output</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">tx_value</span> <span class="o">=</span> <span class="n">tx_value</span><span class="p">[</span><span class="n">tx_value</span><span class="p">[</span><span class="s1">&#39;output_value&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>  <span class="c1"># Total TX value</span>
+    <span class="n">output_wasabi</span> <span class="o">=</span> <span class="n">tx_output</span><span class="p">[</span><span class="n">tx_output</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tx_value</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">input_wasabi</span> <span class="o">=</span> <span class="n">tx_input</span><span class="p">[</span><span class="n">tx_input</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tx_value</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="c1"># tx shape</span>
+    <span class="n">input_count</span> <span class="o">=</span> <span class="n">input_wasabi</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">output_count</span> <span class="o">=</span> <span class="n">output_wasabi</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">output_count</span> <span class="o">=</span> <span class="n">output_count</span><span class="p">[</span><span class="n">output_count</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">input_count</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="n">input_count</span> <span class="o">=</span> <span class="n">input_count</span><span class="p">[</span><span class="n">input_count</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">output_count</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]]</span>  <span class="c1"># general 1, input number always lower than output</span>
+    <span class="n">output_count</span> <span class="o">=</span> <span class="n">output_count</span><span class="p">[</span><span class="n">output_count</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">input_count</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="k">if</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_count</span> <span class="o">=</span> <span class="n">output_count</span><span class="p">[</span><span class="n">output_count</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>  <span class="c1"># number of output</span>
+        <span class="k">if</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">input_count</span> <span class="o">=</span> <span class="n">input_count</span><span class="p">[</span><span class="n">input_count</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span>  <span class="c1"># number of input</span>
+
+    <span class="k">elif</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;proportion&quot;</span><span class="p">:</span>
+        <span class="n">input_count</span> <span class="o">=</span> <span class="n">input_count</span><span class="p">[[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]]</span>
+        <span class="n">input_count</span> <span class="o">=</span> <span class="n">input_count</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;adr_index&#39;</span><span class="p">:</span> <span class="s1">&#39;input_adr&#39;</span><span class="p">})</span>
+        <span class="n">output_count</span> <span class="o">=</span> <span class="n">output_count</span><span class="p">[[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]]</span>
+        <span class="n">output_count</span> <span class="o">=</span> <span class="n">output_count</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">input_count</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">output_count</span><span class="p">[</span><span class="s1">&#39;input_adr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_count</span><span class="p">[</span><span class="s1">&#39;input_adr&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="n">output_count</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span>
+        <span class="n">output_count</span> <span class="o">=</span> <span class="n">output_count</span><span class="p">[</span><span class="n">output_count</span><span class="p">[</span><span class="s1">&#39;input_adr&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span>  <span class="c1"># proportion of input</span>
+        <span class="k">if</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_count</span> <span class="o">=</span> <span class="n">output_count</span><span class="p">[</span><span class="n">output_count</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>  <span class="c1"># number of output</span>
+
+    <span class="n">output_wasabi</span> <span class="o">=</span> <span class="n">output_wasabi</span><span class="p">[</span><span class="n">output_wasabi</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">input_count</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">input_wasabi</span> <span class="o">=</span> <span class="n">input_wasabi</span><span class="p">[</span><span class="n">input_wasabi</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">input_count</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">output_wasabi</span> <span class="o">=</span> <span class="n">output_wasabi</span><span class="p">[</span><span class="n">output_wasabi</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">output_count</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">input_wasabi</span> <span class="o">=</span> <span class="n">input_wasabi</span><span class="p">[</span><span class="n">input_wasabi</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">output_count</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="c1"># check for input count vs most frequent denominator outputs</span>
+    <span class="n">output_wasabi2</span> <span class="o">=</span> <span class="n">output_wasabi</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;tx_index&#39;</span><span class="p">,</span> <span class="s1">&#39;output_value&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">])</span>
+    <span class="n">input_wasabi2</span> <span class="o">=</span> <span class="n">input_wasabi</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;tx_index&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">output_wasabi2</span> <span class="o">=</span> <span class="n">output_wasabi2</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;spent_index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">output_wasabi2</span> <span class="o">=</span> <span class="n">output_wasabi2</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span>
+    <span class="n">output_wasabi2</span> <span class="o">=</span> <span class="n">output_wasabi2</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">input_wasabi2</span><span class="p">[[</span><span class="s1">&#39;input_value&#39;</span><span class="p">]],</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">output_wasabi2</span> <span class="o">=</span> <span class="n">output_wasabi2</span><span class="p">[</span><span class="n">output_wasabi2</span><span class="p">[</span><span class="s1">&#39;spent_index&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">output_wasabi2</span><span class="p">[</span><span class="s1">&#39;input_value&#39;</span><span class="p">]]</span>
+    <span class="n">output_wasabi</span> <span class="o">=</span> <span class="n">output_wasabi</span><span class="p">[</span><span class="o">~</span><span class="n">output_wasabi</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">output_wasabi2</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="n">output_wasabi</span> <span class="o">=</span> <span class="n">output_wasabi</span><span class="p">[</span>
+        <span class="o">~</span><span class="n">output_wasabi</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">output_wasabi2</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>  <span class="c1"># general 1, input number always greater than most frequent output</span>
+    <span class="n">input_wasabi</span> <span class="o">=</span> <span class="n">input_wasabi</span><span class="p">[</span><span class="n">input_wasabi</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">output_wasabi</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="c1"># change output</span>
+    <span class="n">change_check</span> <span class="o">=</span> <span class="n">output_wasabi</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;tx_index&#39;</span><span class="p">,</span> <span class="s1">&#39;output_value&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">change_check</span> <span class="o">=</span> <span class="n">change_check</span><span class="p">[</span><span class="n">change_check</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">change_check2</span> <span class="o">=</span> <span class="n">output_wasabi</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">change_check2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">change_check2</span><span class="p">,</span> <span class="n">change_check</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">,</span> <span class="s1">&#39;spent_index&#39;</span><span class="p">]),</span>
+                             <span class="n">left_on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;tx_index&#39;</span><span class="p">,</span> <span class="s1">&#39;output_value&#39;</span><span class="p">],</span> <span class="n">right_on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;tx_index&#39;</span><span class="p">,</span> <span class="s1">&#39;output_value&#39;</span><span class="p">])</span>
+    <span class="n">change_check2</span> <span class="o">=</span> <span class="n">change_check2</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">change_check2</span> <span class="o">=</span> <span class="n">change_check2</span><span class="p">[</span><span class="n">change_check2</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">5</span><span class="p">]]</span>  <span class="c1"># Number of change output</span>
+
+    <span class="k">elif</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;proportion&quot;</span><span class="p">:</span>
+        <span class="n">change_check2</span> <span class="o">=</span> <span class="n">change_check2</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;adr_index&#39;</span><span class="p">:</span> <span class="s1">&#39;change&#39;</span><span class="p">})</span>
+        <span class="n">change_check2</span> <span class="o">=</span> <span class="n">change_check2</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">output_count</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">change_check2</span><span class="p">[</span><span class="s1">&#39;change&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">change_check2</span><span class="p">[</span><span class="s1">&#39;change&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="n">change_check2</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">change_check2</span> <span class="o">=</span> <span class="n">change_check2</span><span class="p">[</span><span class="n">change_check2</span><span class="p">[</span><span class="s1">&#39;change&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">5</span><span class="p">]]</span>  <span class="c1"># Proportion of change output</span>
+
+    <span class="n">output_wasabi</span> <span class="o">=</span> <span class="n">output_wasabi</span><span class="p">[</span><span class="n">output_wasabi</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">change_check2</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">input_wasabi</span> <span class="o">=</span> <span class="n">input_wasabi</span><span class="p">[</span><span class="n">input_wasabi</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">change_check2</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="c1"># anonymity set</span>
+    <span class="n">ano_check</span> <span class="o">=</span> <span class="n">output_wasabi</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;tx_index&#39;</span><span class="p">,</span> <span class="s1">&#39;output_value&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">ano_check</span> <span class="o">=</span> <span class="n">ano_check</span><span class="p">[</span><span class="n">ano_check</span><span class="p">[</span><span class="s1">&#39;output_value&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">9500000</span><span class="p">]</span>  <span class="c1"># general 2, total anoymity value must be higher than 0.95 BTC</span>
+    <span class="n">ano_check</span> <span class="o">=</span> <span class="n">ano_check</span><span class="p">[</span><span class="n">ano_check</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span>  <span class="c1"># must have at least 2 denomination output</span>
+    <span class="n">ano_check2</span> <span class="o">=</span> <span class="n">output_wasabi</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">ano_check2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">ano_check2</span><span class="p">,</span> <span class="n">ano_check</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">,</span> <span class="s1">&#39;spent_index&#39;</span><span class="p">]),</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+                          <span class="n">left_on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;tx_index&#39;</span><span class="p">,</span> <span class="s1">&#39;output_value&#39;</span><span class="p">],</span> <span class="n">right_on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;tx_index&#39;</span><span class="p">,</span> <span class="s1">&#39;output_value&#39;</span><span class="p">])</span>
+    <span class="n">ano_check2</span> <span class="o">=</span> <span class="n">ano_check2</span><span class="p">[</span><span class="o">~</span><span class="n">ano_check2</span><span class="p">[</span><span class="s1">&#39;adr_type_y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()]</span>
+    <span class="n">ano_check2</span> <span class="o">=</span> <span class="n">ano_check2</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">ano_check2</span> <span class="o">=</span> <span class="n">ano_check2</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="s1">&#39;order_check&#39;</span><span class="p">})</span>
+
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ano_check2</span><span class="p">[</span><span class="s1">&#39;tx_index&#39;</span><span class="p">])):</span>  <span class="c1"># general 3, anonymity set must be in continuous order</span>
+        <span class="k">for</span> <span class="n">this_value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ano_check2</span><span class="p">[</span><span class="n">ano_check2</span><span class="p">[</span><span class="s1">&#39;tx_index&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">index</span><span class="p">][</span><span class="s1">&#39;output_value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)):</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">ano_check2</span><span class="p">[(</span><span class="n">ano_check2</span><span class="p">[</span><span class="s1">&#39;tx_index&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">index</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">ano_check2</span><span class="p">[</span><span class="s1">&#39;output_value&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">this_value</span><span class="p">)]</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;order_check&#39;</span><span class="p">]]</span>
+            <span class="n">seq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">RangeIndex</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">order_check</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">df</span><span class="o">.</span><span class="n">order_check</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="o">~</span><span class="n">seq</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">order_check</span><span class="p">)]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">remove</span> <span class="o">=</span> <span class="n">ano_check2</span><span class="p">[(</span><span class="n">ano_check2</span><span class="p">[</span><span class="s1">&#39;tx_index&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">index</span><span class="p">)</span> <span class="o">&amp;</span>
+                                    <span class="p">(</span><span class="n">ano_check2</span><span class="p">[</span><span class="s1">&#39;output_value&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">this_value</span><span class="p">)]</span>
+                <span class="n">ano_check2</span> <span class="o">=</span> <span class="n">ano_check2</span><span class="p">[</span><span class="o">~</span><span class="n">ano_check2</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">remove</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="n">ano_check2</span> <span class="o">=</span> <span class="n">ano_check2</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ano_check2</span><span class="o">.</span><span class="n">index</span><span class="p">)):</span>  <span class="c1"># general 4, anonymity set must sort lowest to highest</span>
+        <span class="k">if</span> <span class="n">ano_check2</span><span class="p">[</span><span class="n">ano_check2</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="n">index</span><span class="p">][</span><span class="s1">&#39;output_value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">is_monotonic</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ano_check2</span> <span class="o">=</span> <span class="n">ano_check2</span><span class="p">[</span><span class="n">ano_check2</span><span class="o">.</span><span class="n">index</span> <span class="o">!=</span> <span class="n">index</span><span class="p">]</span>
+    <span class="n">ano_check2</span> <span class="o">=</span> <span class="n">ano_check2</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ano_check2</span> <span class="o">=</span> <span class="n">ano_check2</span><span class="p">[</span><span class="n">ano_check2</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">4</span><span class="p">]]</span>  <span class="c1"># Number of denomination output</span>
+
+    <span class="k">elif</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;proportion&quot;</span><span class="p">:</span>
+        <span class="n">ano_check2</span> <span class="o">=</span> <span class="n">ano_check2</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;adr_index&#39;</span><span class="p">:</span> <span class="s1">&#39;deno&#39;</span><span class="p">})</span>
+        <span class="n">ano_check2</span> <span class="o">=</span> <span class="n">ano_check2</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">output_count</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ano_check2</span><span class="p">[</span><span class="s1">&#39;deno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ano_check2</span><span class="p">[</span><span class="s1">&#39;deno&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="n">ano_check2</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ano_check2</span> <span class="o">=</span> <span class="n">ano_check2</span><span class="p">[</span><span class="n">ano_check2</span><span class="p">[</span><span class="s1">&#39;deno&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">wasabi_pattern</span><span class="p">[</span><span class="mi">4</span><span class="p">]]</span>  <span class="c1"># Proportion of denomination output</span>
+
+    <span class="n">output_wasabi</span> <span class="o">=</span> <span class="n">output_wasabi</span><span class="p">[</span><span class="n">output_wasabi</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">ano_check2</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">input_wasabi</span> <span class="o">=</span> <span class="n">input_wasabi</span><span class="p">[</span><span class="n">input_wasabi</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">ano_check2</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="n">wasabi_tx</span> <span class="o">=</span> <span class="n">output_wasabi</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">wasabi_tx</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">wasabi_tx</span><span class="p">)</span>
+    <span class="n">wasabi_tx</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;wasabi&#39;</span>
+    <span class="n">coinjoin_tx</span> <span class="o">=</span> <span class="n">coinjoin_tx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wasabi_tx</span><span class="p">)</span>
+
+    <span class="c1"># whirlpool coinjoin_tx</span>
+    <span class="n">coin_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1000000</span><span class="p">,</span> <span class="mi">5000000</span><span class="p">,</span> <span class="mi">50000000</span><span class="p">]</span>
+    <span class="n">whirlpool_input</span> <span class="o">=</span> <span class="n">tx_input</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">whirlpool_input</span> <span class="o">=</span> <span class="n">whirlpool_input</span><span class="p">[</span><span class="n">whirlpool_input</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">5</span><span class="p">]</span>  <span class="c1"># 5 input only</span>
+    <span class="n">whirlpool_input</span> <span class="o">=</span> <span class="n">tx_input</span><span class="p">[</span><span class="n">tx_input</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">whirlpool_input</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">whirlpool_input</span> <span class="o">=</span> <span class="n">whirlpool_input</span><span class="p">[[</span><span class="s1">&#39;input_value&#39;</span><span class="p">]]</span>
+
+    <span class="n">whirlpool_output</span> <span class="o">=</span> <span class="n">tx_output</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">whirlpool_output</span> <span class="o">=</span> <span class="n">whirlpool_output</span><span class="p">[</span><span class="n">whirlpool_output</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">5</span><span class="p">]</span>  <span class="c1"># 5 output only</span>
+    <span class="n">whirlpool_output</span> <span class="o">=</span> <span class="n">tx_output</span><span class="p">[</span><span class="n">tx_output</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">whirlpool_output</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">whirlpool_output</span> <span class="o">=</span> <span class="n">whirlpool_output</span><span class="p">[[</span><span class="s1">&#39;output_value&#39;</span><span class="p">]]</span>
+
+    <span class="n">whirlpool_input</span> <span class="o">=</span> <span class="n">whirlpool_input</span><span class="p">[</span><span class="n">whirlpool_input</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">whirlpool_output</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">whirlpool_output</span> <span class="o">=</span> <span class="n">whirlpool_output</span><span class="p">[</span><span class="n">whirlpool_output</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">whirlpool_input</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="n">coin_check</span> <span class="o">=</span> <span class="n">whirlpool_output</span><span class="p">[</span><span class="o">~</span><span class="n">whirlpool_output</span><span class="p">[</span><span class="s1">&#39;output_value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">coin_list</span><span class="p">)]</span>
+    <span class="n">whirlpool_output</span> <span class="o">=</span> <span class="n">whirlpool_output</span><span class="p">[</span><span class="o">~</span><span class="n">whirlpool_output</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">coin_check</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>  <span class="c1"># remove tx with output outside of coin_list</span>
+    <span class="n">whirlpool_input</span> <span class="o">=</span> <span class="n">whirlpool_input</span><span class="p">[</span><span class="n">whirlpool_input</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">whirlpool_output</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">tx</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">whirlpool_output</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())):</span>
+        <span class="n">output_check</span> <span class="o">=</span> <span class="n">whirlpool_output</span><span class="p">[</span><span class="n">whirlpool_output</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">tx</span><span class="p">])]</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">output_check</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>  <span class="c1"># all outputs have exact same value</span>
+            <span class="n">input_check</span> <span class="o">=</span> <span class="n">whirlpool_input</span><span class="p">[</span><span class="n">whirlpool_input</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">tx</span><span class="p">])]</span>
+            <span class="n">found_coin</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_check</span><span class="p">[</span>
+                       <span class="n">input_check</span><span class="p">[</span><span class="s1">&#39;input_value&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">found_coin</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">5</span><span class="p">:</span>  <span class="c1"># remove any tx with input that has input value lower than output value</span>
+                <span class="n">whirlpool_output</span> <span class="o">=</span> <span class="n">whirlpool_output</span><span class="p">[</span><span class="o">~</span><span class="n">whirlpool_output</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">tx</span><span class="p">])]</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># not whirlpool, remove</span>
+            <span class="n">whirlpool_output</span> <span class="o">=</span> <span class="n">whirlpool_output</span><span class="p">[</span><span class="o">~</span><span class="n">whirlpool_output</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">tx</span><span class="p">])]</span>
+
+    <span class="n">whirlpool_tx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">whirlpool_output</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())))</span>
+    <span class="n">whirlpool_tx</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">whirlpool_tx</span><span class="p">)</span>
+    <span class="n">whirlpool_tx</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;whirlpool&#39;</span>
+    <span class="n">coinjoin_tx</span> <span class="o">=</span> <span class="n">coinjoin_tx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">whirlpool_tx</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">coinjoin_tx</span></div>
+
+
+<div class="viewcode-block" id="coinjoin_scrape"><a class="viewcode-back" href="../../reference/pets/pets.html#utility.pets.coinjoin_scrape">[docs]</a><span class="k">def</span> <span class="nf">coinjoin_scrape</span><span class="p">(</span><span class="n">wait_time</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">50</span><span class="p">)):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Scraping current unconfirmed Wasabi CoinJoin transaction hash from Wasabi CoinJoin API</span>
+<span class="sd">    :param wait_time: random.randint() with second value such as 10,30 for between 10 to 30 seconds</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tx_hash&quot;</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;https://wasabiwallet.io/api/v4/btc/chaumiancoinjoin/unconfirmed-coinjoins&#39;</span><span class="p">)</span>
+        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">soup</span><span class="p">)</span> <span class="o">!=</span> <span class="p">[]</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">soup</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;tx_hash&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;tx_hash&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">soup</span><span class="p">)},</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;scrape_coinjointx.csv&quot;</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait_time</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="mixer_find"><a class="viewcode-back" href="../../reference/pets/pets.html#utility.pets.mixer_find">[docs]</a><span class="k">def</span> <span class="nf">mixer_find</span><span class="p">(</span><span class="n">tx_input</span><span class="p">,</span> <span class="n">tx_output</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Profiling potential transactions involving with mixer services.</span>
+
+<span class="sd">    :param tx_input: tx_input data.</span>
+<span class="sd">    :param tx_output: tx_output data.</span>
+
+<span class="sd">    :return: Dataframe with transactions classified as mixer transactions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">mixer_tx</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">output_chipmixer</span> <span class="o">=</span> <span class="n">tx_output</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">output_chipmixer</span> <span class="o">=</span> <span class="n">output_chipmixer</span><span class="p">[</span><span class="n">output_chipmixer</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">]</span>  <span class="c1"># no less than 4 output, can be higher</span>
+    <span class="n">output_chipmixer</span> <span class="o">=</span> <span class="n">tx_output</span><span class="p">[</span><span class="n">tx_output</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">output_chipmixer</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+        <span class="p">[</span><span class="s1">&#39;tx_index&#39;</span><span class="p">,</span> <span class="s1">&#39;output_value&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+        <span class="s1">&#39;tx_index&#39;</span><span class="p">)</span>
+    <span class="n">remove</span> <span class="o">=</span> <span class="n">output_chipmixer</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">output_chipmixer</span><span class="p">[</span><span class="s1">&#39;output_value&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">100000</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">output_chipmixer</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)]</span>  <span class="c1"># minimum chip is 0.001 BTC with 1 exception</span>
+    <span class="n">output_chipmixer</span> <span class="o">=</span> <span class="n">output_chipmixer</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">output_chipmixer</span> <span class="o">=</span> <span class="n">output_chipmixer</span><span class="p">[</span><span class="n">output_chipmixer</span><span class="p">[</span><span class="s1">&#39;output_value&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">]</span>  <span class="c1"># no output value more than 2 value</span>
+
+    <span class="n">output_chipmixer</span> <span class="o">=</span> <span class="n">tx_output</span><span class="p">[</span><span class="n">tx_output</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">output_chipmixer</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">output_chipmixer</span> <span class="o">=</span> <span class="n">output_chipmixer</span><span class="p">[</span><span class="o">~</span><span class="n">output_chipmixer</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">remove</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">output_chipmixer</span> <span class="o">=</span> <span class="n">output_chipmixer</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;tx_index&#39;</span><span class="p">,</span> <span class="s1">&#39;output_value&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span>
+    <span class="n">output_chipmixer</span><span class="p">[</span><span class="s1">&#39;check&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_chipmixer</span><span class="p">[</span><span class="s1">&#39;output_value&#39;</span><span class="p">]</span> <span class="o">%</span> <span class="mi">100000</span>  <span class="c1"># must round at this digit</span>
+    <span class="n">remove</span> <span class="o">=</span> <span class="n">output_chipmixer</span><span class="p">[(</span><span class="n">output_chipmixer</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">output_chipmixer</span><span class="p">[</span><span class="s1">&#39;check&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)]</span>  <span class="c1"># no transaction with chip not round</span>
+    <span class="n">output_chipmixer</span> <span class="o">=</span> <span class="n">tx_output</span><span class="p">[</span><span class="n">tx_output</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">output_chipmixer</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">output_chipmixer</span> <span class="o">=</span> <span class="n">output_chipmixer</span><span class="p">[</span><span class="o">~</span><span class="n">output_chipmixer</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">remove</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="n">tx_chipmixer</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">output_chipmixer</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())))</span>
+    <span class="n">tx_chipmixer</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">tx_chipmixer</span><span class="p">])</span>
+    <span class="n">tx_chipmixer</span> <span class="o">=</span> <span class="n">tx_chipmixer</span><span class="p">[</span><span class="n">tx_chipmixer</span><span class="o">.</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="n">chipmixer_start_tx_index</span><span class="p">]</span>  <span class="c1"># chipmixer was announce around May 2017, remove false positive tx before that</span>
+    <span class="n">tx_chipmixer</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;chipmixer&#39;</span>
+    <span class="n">mixer_tx</span> <span class="o">=</span> <span class="n">mixer_tx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tx_chipmixer</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mixer_tx</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Tin.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

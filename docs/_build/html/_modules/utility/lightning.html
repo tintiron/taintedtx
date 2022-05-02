@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utility.lightning &mdash; taintedtx latest documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> taintedtx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html">Example 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-2">Example 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-3">Example 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/reference.html">Library Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">taintedtx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>utility.lightning</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for utility.lightning</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="k">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">chained_assignment</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># default=&#39;warn&#39;</span>
+
+<span class="n">lncapup_tx</span> <span class="o">=</span> <span class="mi">525360980</span>  <span class="c1"># transaction index of the first transaction on the day the network capacity was updated.</span>
+
+
+<div class="viewcode-block" id="lightning_check"><a class="viewcode-back" href="../../reference/lightning/lightning.html#utility.lightning.lightning_check">[docs]</a><span class="k">def</span> <span class="nf">lightning_check</span><span class="p">(</span><span class="n">tx_input</span><span class="p">,</span> <span class="n">tx_output</span><span class="p">,</span> <span class="n">tx_tainted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">service_adr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if the transactions are potentially lightning_tx transactions</span>
+
+<span class="sd">    :param tx_input: Dataframe containing tx input data.</span>
+<span class="sd">    :param tx_output: Dataframe containing tx output data.</span>
+<span class="sd">    :param tx_tainted: Dataframe for lightning_tx checking.</span>
+<span class="sd">    :param service_adr: Dataframe containing service unrelated to lightning_tx network.</span>
+<span class="sd">    :param value_limit: Optional channel value limit that replace the default.</span>
+
+<span class="sd">    :return: Dataframe with public lightning_tx classification.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">taintedtx</span>
+    <span class="n">lightning_adr_type</span> <span class="o">=</span> <span class="n">taintedtx</span><span class="o">.</span><span class="n">lightning_adr_type</span>
+
+    <span class="k">if</span> <span class="n">tx_tainted</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">found_tx</span> <span class="o">=</span> <span class="n">tx_output</span><span class="p">[</span><span class="n">tx_output</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">found_tx</span> <span class="o">=</span> <span class="n">tx_output</span>
+
+    <span class="n">found_tx</span><span class="p">[</span><span class="s1">&#39;adr_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">found_tx</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">%</span> <span class="mi">10</span>
+    <span class="n">found_tx</span> <span class="o">=</span> <span class="n">found_tx</span><span class="p">[</span><span class="n">found_tx</span><span class="p">[</span><span class="s1">&#39;adr_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">lightning_adr_type</span><span class="p">]</span>  <span class="c1"># only witness script hash multi-sig adr output</span>
+
+    <span class="k">if</span> <span class="n">value_limit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">found_tx</span> <span class="o">=</span> <span class="n">found_tx</span><span class="p">[</span><span class="n">found_tx</span><span class="p">[</span><span class="s1">&#39;output_value&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">16700000</span><span class="p">]</span>
+        <span class="n">found_tx</span> <span class="o">=</span> <span class="n">found_tx</span><span class="p">[(</span><span class="n">found_tx</span><span class="p">[</span><span class="s1">&#39;output_value&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">4200000</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">found_tx</span><span class="o">.</span><span class="n">index</span> <span class="o">&lt;</span> <span class="n">lncapup_tx</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">found_tx</span> <span class="o">=</span> <span class="n">found_tx</span><span class="p">[</span><span class="n">found_tx</span><span class="p">[</span><span class="s1">&#39;output_value&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">value_limit</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">service_adr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">found_input</span> <span class="o">=</span> <span class="n">tx_input</span><span class="p">[</span><span class="n">tx_input</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">found_tx</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">found_input</span> <span class="o">=</span> <span class="n">found_input</span><span class="p">[</span><span class="o">~</span><span class="n">found_input</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">service_adr</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">found_tx</span> <span class="o">=</span> <span class="n">found_tx</span><span class="p">[</span><span class="o">~</span><span class="n">found_tx</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">found_input</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>  <span class="c1"># no service in input</span>
+        <span class="n">found_tx</span> <span class="o">=</span> <span class="n">found_tx</span><span class="p">[</span><span class="o">~</span><span class="n">found_tx</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">service_adr</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>  <span class="c1"># no service in output</span>
+
+    <span class="n">close_tx</span> <span class="o">=</span> <span class="n">tx_output</span><span class="p">[</span><span class="n">tx_output</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">found_tx</span><span class="p">[</span><span class="s1">&#39;spent_index&#39;</span><span class="p">])]</span>
+    <span class="n">close_input</span> <span class="o">=</span> <span class="n">tx_input</span><span class="p">[</span><span class="n">tx_input</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">found_tx</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">close_input</span> <span class="o">=</span> <span class="n">close_input</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">close_input</span> <span class="o">=</span> <span class="n">close_input</span><span class="p">[</span><span class="n">close_input</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>  <span class="c1"># only one input</span>
+    <span class="n">close_tx</span> <span class="o">=</span> <span class="n">close_tx</span><span class="p">[</span><span class="n">close_tx</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">close_input</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">close_tx</span> <span class="o">=</span> <span class="n">close_tx</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">close_tx</span> <span class="o">=</span> <span class="n">close_tx</span><span class="p">[</span><span class="n">close_tx</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">]</span>  <span class="c1"># no more than two output</span>
+
+    <span class="n">found_tx</span> <span class="o">=</span> <span class="n">found_tx</span><span class="p">[</span><span class="n">found_tx</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">close_tx</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>  <span class="c1"># complete list of lightning_tx tx</span>
+    <span class="n">lightning_tx</span> <span class="o">=</span> <span class="n">tx_tainted</span><span class="p">[</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">found_tx</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="n">lightning_tx</span></div>
+
+
+<div class="viewcode-block" id="pub_lightning_check"><a class="viewcode-back" href="../../reference/lightning/lightning.html#utility.lightning.pub_lightning_check">[docs]</a><span class="k">def</span> <span class="nf">pub_lightning_check</span><span class="p">(</span><span class="n">tx_tainted</span><span class="p">,</span> <span class="n">user_agent_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if found lightning_tx transactions are public or not</span>
+
+<span class="sd">    :param tx_tainted: Dataframe for public checking, require transaction hash value.</span>
+<span class="sd">    :param user_agent_list: List of user agents to improve google automated search prevention.</span>
+
+<span class="sd">    :return: Dataframe with public lightning_tx classification.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">search_wait_time</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">120</span><span class="p">)</span>
+    <span class="n">error_wait_time</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">3000</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">run</span><span class="p">,</span> <span class="n">tx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">this_tx_hash</span> <span class="o">=</span> <span class="n">tx_tainted</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="s1">&#39;tx_hash&#39;</span><span class="p">]</span>
+            <span class="n">this_tx_hash</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;&quot;</span><span class="si">{this_tx_hash}</span><span class="s1">&quot;&#39;</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">search_wait_time</span><span class="p">)</span>  <span class="c1"># seem like may need longer time wait</span>
+            <span class="n">user_agent</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">user_agent_list</span><span class="p">)</span>
+            <span class="n">requests</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;User-Agent&#39;</span><span class="p">:</span> <span class="n">user_agent</span><span class="p">,</span> <span class="s1">&#39;referer&#39;</span><span class="p">:</span> <span class="s1">&#39;https://www.google.com/&#39;</span><span class="p">}</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://www.google.com/search?q=&quot;lightning_tx&quot;+&#39;</span> <span class="o">+</span> <span class="n">this_tx_hash</span> <span class="o">+</span> <span class="s1">&#39;&amp;oq=&quot;lightning_tx&quot;+&#39;</span> <span class="o">+</span> <span class="n">this_tx_hash</span>
+            <span class="n">source_code</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">requests</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
+
+            <span class="k">while</span> <span class="n">source_code</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">tx</span><span class="p">,</span> <span class="s1">&#39;Error&#39;</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">error_wait_time</span><span class="p">)</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://www.google.com/search?q=&quot;lightning_tx&quot;+&#39;</span> <span class="o">+</span> <span class="n">this_tx_hash</span> <span class="o">+</span> <span class="s1">&#39;&amp;oq=&quot;lightning_tx&quot;+&#39;</span> <span class="o">+</span> <span class="n">this_tx_hash</span>
+                <span class="n">source_code</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">requests</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">source_code</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+                <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">source_code</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;div&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;result-stats&#39;</span><span class="p">})</span>
+                <span class="k">if</span> <span class="n">found</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">tx_tainted</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="s1">&#39;public&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">tx_tainted</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="s1">&#39;public&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">if</span> <span class="n">run</span> <span class="o">%</span> <span class="mi">500</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">tx_tainted</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;pub_lighting.csv&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tx_tainted</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Tin.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

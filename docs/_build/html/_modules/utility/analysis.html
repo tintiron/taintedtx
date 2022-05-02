@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utility.analysis &mdash; taintedtx latest documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> taintedtx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html">Example 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-2">Example 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-3">Example 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/reference.html">Library Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">taintedtx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>utility.analysis</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for utility.analysis</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">utility</span> <span class="k">import</span> <span class="n">utility_function</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">chained_assignment</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># default=&#39;warn&#39;</span>
+
+<span class="n">read_option</span> <span class="o">=</span> <span class="n">utility_function</span><span class="o">.</span><span class="n">read_option</span>
+
+
+<div class="viewcode-block" id="tx_analysis"><a class="viewcode-back" href="../../reference/analysis/analysis.html#utility.analysis.tx_analysis">[docs]</a><span class="k">def</span> <span class="nf">tx_analysis</span><span class="p">(</span><span class="n">taintedtx</span><span class="p">,</span> <span class="n">case_name</span><span class="p">,</span> <span class="n">poison_df</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tx_tainted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">service_adr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coinjoin_tx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mixer_adr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">mixer_tx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">known_user</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tx_fee</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">no_reuse</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">first_tx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">avg_tx_fee</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lightning_tx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform transaction analysis on the provided transactions.</span>
+
+<span class="sd">    :param taintedtx: taintedtx for linking to TaintedTX object.</span>
+<span class="sd">    :param case_name: Case name.</span>
+<span class="sd">    :param poison_df: DataFrame containing all possible tainted transactions for potential PETs classification.</span>
+<span class="sd">    :param tx_tainted: DataFrame containing clustered adr for adding more.</span>
+<span class="sd">    :param service_adr: DataFrame containing service addresses.</span>
+<span class="sd">    :param coinjoin_tx: DataFrame containing coinjoin transactions.</span>
+<span class="sd">    :param mixer_adr: DataFrame containing mixer addresses.</span>
+<span class="sd">    :param mixer_tx: DataFrame containing mixer transactions.</span>
+<span class="sd">    :param known_user: DataFrame containing known user address.</span>
+<span class="sd">    :param tx_fee: DataFrame containing transaction fee.</span>
+<span class="sd">    :param no_reuse: DataFrame containing address never reused (receive output more than one transaction).</span>
+<span class="sd">    :param first_tx: DataFrame containing addresses&#39; first transaction for checking fresh address.</span>
+<span class="sd">    :param avg_tx_fee: DataFrame containing average transaction fee either per day, block or any time interval.</span>
+<span class="sd">    :param lightning_tx: DataFrame containing lightning network transactions.</span>
+
+<span class="sd">    :return: DataFrame with transaction and criteria as columns and add average criteria value to taintedtx.evaluate</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39;tx_index&#39;</span> <span class="ow">in</span> <span class="n">tx_tainted</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">tx_tainted</span> <span class="o">=</span> <span class="n">tx_tainted</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span>
+
+    <span class="n">tx_input</span> <span class="o">=</span> <span class="n">taintedtx</span><span class="o">.</span><span class="n">tx_input</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tx_input</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">tx_input</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">taintedtx</span><span class="o">.</span><span class="n">yearlist</span><span class="p">:</span>
+            <span class="n">temp_tx_input</span> <span class="o">=</span> <span class="n">read_option</span><span class="p">(</span><span class="n">taintedtx</span><span class="o">.</span><span class="n">input_filename</span><span class="p">,</span> <span class="n">taintedtx</span><span class="o">.</span><span class="n">path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">)</span>
+            <span class="n">temp_tx_input</span> <span class="o">=</span> <span class="n">temp_tx_input</span><span class="p">[</span><span class="n">temp_tx_input</span><span class="p">[</span><span class="s1">&#39;tx_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+            <span class="n">tx_input</span> <span class="o">=</span> <span class="n">tx_input</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_tx_input</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">temp_tx_input</span>
+
+    <span class="n">tx_height</span> <span class="o">=</span> <span class="n">taintedtx</span><span class="o">.</span><span class="n">tx_height</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">taintedtx</span><span class="o">.</span><span class="n">tx_height</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">tx_height</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">txrange</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">taintedtx</span><span class="o">.</span><span class="n">tx_range_list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">txrange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">temp_tx_height</span> <span class="o">=</span> <span class="n">read_option</span><span class="p">(</span><span class="n">taintedtx</span><span class="o">.</span><span class="n">txheight_filename</span><span class="p">,</span> <span class="n">taintedtx</span><span class="o">.</span><span class="n">path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">taintedtx</span><span class="o">.</span><span class="n">yearlist</span><span class="p">[</span><span class="n">index</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">)</span>
+                <span class="n">tx_height</span> <span class="o">=</span> <span class="n">tx_height</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_tx_height</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">txrange</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">break</span>
+        <span class="k">del</span> <span class="n">temp_tx_height</span>
+
+    <span class="n">block</span> <span class="o">=</span> <span class="n">read_option</span><span class="p">(</span><span class="n">taintedtx</span><span class="o">.</span><span class="n">block_filename</span><span class="p">,</span> <span class="n">taintedtx</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;total_address&#39;</span><span class="p">,</span> <span class="s1">&#39;reuse_adr&#39;</span><span class="p">,</span> <span class="s1">&#39;fresh_reuse_adr&#39;</span><span class="p">,</span> <span class="s1">&#39;fresh_adr&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;service_adr&#39;</span><span class="p">,</span> <span class="s1">&#39;total_tx&#39;</span><span class="p">,</span> <span class="s1">&#39;pets&#39;</span><span class="p">,</span> <span class="s1">&#39;known_user&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;tx_fee&#39;</span><span class="p">,</span> <span class="s1">&#39;fee_rate&#39;</span><span class="p">],</span>
+        <span class="n">index</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))))</span>
+
+    <span class="n">input_count</span> <span class="o">=</span> <span class="n">tx_input</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;spent_index&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;tx_index&#39;</span><span class="p">,</span> <span class="s1">&#39;adr_index&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">input_count</span> <span class="o">=</span> <span class="n">input_count</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;tx_index&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">output_count</span> <span class="o">=</span> <span class="n">tx_tainted</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;spent_index&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;tx_index&#39;</span><span class="p">,</span> <span class="s1">&#39;adr_index&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">output_count</span> <span class="o">=</span> <span class="n">output_count</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;tx_index&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">output_count</span><span class="p">[</span><span class="s1">&#39;adr_per_tx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_count</span><span class="p">[</span><span class="s1">&#39;output_value&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">input_count</span><span class="p">[</span><span class="s1">&#39;input_value&#39;</span><span class="p">]</span>
+    <span class="n">output_count</span><span class="o">.</span><span class="n">adr_per_tx</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">output_count</span><span class="o">.</span><span class="n">output_value</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># fill nan from coinbase tx</span>
+    <span class="k">if</span> <span class="n">service_adr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># no service adr profile dataframe</span>
+        <span class="n">service_adr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="c1"># Frequency</span>
+    <span class="n">frequency</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">last_tx_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">first_tx_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">start_tx</span> <span class="o">=</span> <span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">start_block</span> <span class="o">=</span> <span class="n">tx_height</span><span class="p">[</span><span class="n">tx_height</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="n">start_tx</span><span class="p">][</span><span class="s1">&#39;block_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">block</span><span class="p">[</span><span class="n">block</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="n">start_block</span><span class="p">][</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">15</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">end_time</span> <span class="o">=</span> <span class="n">start_time</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">)</span>
+        <span class="n">start_txday</span> <span class="o">=</span> \
+            <span class="n">tx_height</span><span class="p">[</span><span class="n">tx_height</span><span class="p">[</span><span class="s1">&#39;block_index&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">block</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">block</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">date</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">end_time</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;D&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">end_txday</span> <span class="o">=</span> \
+            <span class="n">tx_height</span><span class="p">[</span><span class="n">tx_height</span><span class="p">[</span><span class="s1">&#39;block_index&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">block</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">block</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">date</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">end_time</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;D&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">last_tx_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">end_txday</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">first_tx_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">start_txday</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">first_tx_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">start_tx</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">this_index</span><span class="p">,</span> <span class="n">last_tx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">last_tx_list</span><span class="p">):</span>
+        <span class="n">first_tx</span> <span class="o">=</span> <span class="n">first_tx_list</span><span class="p">[</span><span class="n">this_index</span><span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">tx_tainted</span><span class="p">[</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="n">first_tx</span><span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">&lt;=</span> <span class="n">last_tx</span><span class="p">]</span>
+        <span class="n">frequency</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">))))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">frequency</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">frequency</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Service adr</span>
+    <span class="n">service_adr</span> <span class="o">=</span> <span class="n">tx_tainted</span><span class="p">[</span><span class="n">tx_tainted</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">service_adr</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">service_tx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">service_adr</span><span class="o">.</span><span class="n">index</span><span class="p">)))</span>
+    <span class="n">service_adr</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">service_adr</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">])))</span>
+
+    <span class="c1"># Reuse adr (not count service)</span>
+    <span class="n">reuse_df</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">if</span> <span class="n">no_reuse</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">no_reuse</span> <span class="o">=</span> <span class="n">no_reuse</span><span class="p">[</span><span class="n">no_reuse</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tx_tainted</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">])]</span>
+        <span class="n">reuse_df</span> <span class="o">=</span> <span class="n">tx_tainted</span><span class="p">[</span><span class="o">~</span><span class="n">tx_tainted</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">no_reuse</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;spent_index&#39;</span><span class="p">,</span> <span class="s1">&#39;taint_value&#39;</span><span class="p">,</span> <span class="s1">&#39;clean_value&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">service_adr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reuse_df</span> <span class="o">=</span> <span class="n">reuse_df</span><span class="p">[</span><span class="o">~</span><span class="n">reuse_df</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">service_adr</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">mixer_adr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reuse_df</span> <span class="o">=</span> <span class="n">reuse_df</span><span class="p">[</span><span class="o">~</span><span class="n">reuse_df</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">mixer_adr</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">reuse_df</span> <span class="o">=</span> <span class="n">reuse_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;tx_index&#39;</span><span class="p">,</span> <span class="s1">&#39;adr_index&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="n">reuse_df</span> <span class="o">=</span> <span class="n">reuse_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Fresh adr (not count service)</span>
+    <span class="n">fresh_df</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">if</span> <span class="n">first_tx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">first_tx</span> <span class="o">=</span> <span class="n">first_tx</span><span class="p">[</span><span class="n">first_tx</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tx_tainted</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">])]</span>
+        <span class="n">fresh_df</span> <span class="o">=</span> <span class="n">tx_tainted</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;adr_index&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">service_adr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fresh_df</span> <span class="o">=</span> <span class="n">fresh_df</span><span class="p">[</span><span class="o">~</span><span class="n">fresh_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">service_adr</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">mixer_adr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fresh_df</span> <span class="o">=</span> <span class="n">fresh_df</span><span class="p">[</span><span class="o">~</span><span class="n">fresh_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">mixer_adr</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">fresh_df</span> <span class="o">=</span> <span class="n">fresh_df</span><span class="p">[</span><span class="o">~</span><span class="n">fresh_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s1">&#39;first&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;spent_index&#39;</span><span class="p">,</span> <span class="s1">&#39;taint_value&#39;</span><span class="p">,</span> <span class="s1">&#39;clean_value&#39;</span><span class="p">,</span> <span class="s1">&#39;output_value&#39;</span><span class="p">])</span>
+        <span class="n">fresh_df</span> <span class="o">=</span> <span class="n">fresh_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;tx_index&#39;</span><span class="p">:</span> <span class="s1">&#39;taint_tx&#39;</span><span class="p">})</span>
+        <span class="n">fresh_df</span> <span class="o">=</span> <span class="n">fresh_df</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">first_tx</span><span class="p">)</span>
+        <span class="n">fresh_df</span> <span class="o">=</span> <span class="n">fresh_df</span><span class="p">[</span><span class="n">fresh_df</span><span class="p">[</span><span class="s1">&#39;taint_tx&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">fresh_df</span><span class="p">[</span><span class="s1">&#39;tx_index&#39;</span><span class="p">]]</span>
+
+    <span class="c1"># fresh and reuse</span>
+    <span class="n">fresh_reuse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">if</span> <span class="n">no_reuse</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">first_tx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fresh_reuse</span> <span class="o">=</span> <span class="n">fresh_df</span><span class="p">[</span><span class="n">fresh_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">reuse_df</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">])]</span>
+
+        <span class="c1"># remove fresh and reuse from reuse/fresh df</span>
+        <span class="n">reuse_df</span> <span class="o">=</span> <span class="n">reuse_df</span><span class="p">[</span><span class="o">~</span><span class="n">reuse_df</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">fresh_reuse</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">fresh_df</span> <span class="o">=</span> <span class="n">fresh_df</span><span class="p">[</span><span class="o">~</span><span class="n">fresh_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">fresh_reuse</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">fresh_reuse</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">fresh_reuse</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())))</span>
+
+    <span class="k">if</span> <span class="n">no_reuse</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">temp_df</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="p">[</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">reuse_df</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">temp_df2</span> <span class="o">=</span> <span class="n">reuse_df</span><span class="p">[</span><span class="n">reuse_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span>
+        <span class="n">temp_df</span><span class="p">[</span><span class="s1">&#39;reuse_adr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_df2</span>
+        <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="p">[</span><span class="o">~</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">temp_df</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_df</span><span class="p">)</span>
+        <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+        <span class="n">reuse_df</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">reuse_df</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())))</span>
+
+    <span class="k">if</span> <span class="n">first_tx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">temp_df</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="p">[</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">fresh_df</span><span class="p">[</span><span class="s1">&#39;tx_index&#39;</span><span class="p">])]</span>
+        <span class="n">temp_df2</span> <span class="o">=</span> <span class="n">fresh_df</span><span class="p">[</span><span class="n">fresh_df</span><span class="p">[</span><span class="s1">&#39;tx_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="n">temp_df</span><span class="p">[</span><span class="s1">&#39;fresh_adr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_df2</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span>
+        <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="p">[</span><span class="o">~</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">temp_df</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_df</span><span class="p">)</span>
+        <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+        <span class="n">fresh_df</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">fresh_df</span><span class="o">.</span><span class="n">index</span><span class="p">)))</span>
+
+    <span class="n">total_address</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">tx_tainted</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())))</span>  <span class="c1"># total adr</span>
+
+    <span class="c1"># Unidentified pets</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">input_count</span><span class="p">[</span><span class="n">input_count</span><span class="p">[</span><span class="s1">&#39;input_value&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">pet_tx</span> <span class="o">=</span> <span class="n">tx_tainted</span><span class="p">[</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">pet_tx</span> <span class="o">=</span> <span class="n">tx_input</span><span class="p">[</span><span class="n">tx_input</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">pet_tx</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">poison_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pet_tx</span><span class="p">[</span><span class="o">~</span><span class="n">pet_tx</span><span class="p">[</span><span class="s1">&#39;spent_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">poison_df</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>  <span class="c1"># find tx that not already existed in FULL tainted list</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pet_tx</span><span class="p">[</span><span class="o">~</span><span class="n">pet_tx</span><span class="p">[</span><span class="s1">&#39;spent_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">pet_tx</span> <span class="o">=</span> <span class="n">pet_tx</span><span class="p">[</span><span class="n">pet_tx</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>  <span class="c1"># get tx with completely clean coins in tx_tainted</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pet_tx</span><span class="p">[</span><span class="n">pet_tx</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">service_adr</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>  <span class="c1"># remove tx with service</span>
+    <span class="n">pet_tx</span> <span class="o">=</span> <span class="n">pet_tx</span><span class="p">[</span><span class="o">~</span><span class="n">pet_tx</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="c1"># known user adr</span>
+    <span class="n">known_user_found</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">if</span> <span class="n">known_user</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">known_user_found</span> <span class="o">=</span> <span class="n">tx_tainted</span><span class="p">[</span><span class="n">tx_tainted</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">known_user</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">known_user_found</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="p">[</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">known_user_found</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">known_user_found</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">known_user_found</span><span class="p">[</span><span class="s1">&#39;known_user&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="p">[</span><span class="o">~</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">known_user</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+            <span class="n">new_tx_tainted</span><span class="p">[</span><span class="s1">&#39;known_user&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">known_user_found</span><span class="p">)</span>
+            <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+        <span class="c1">#             pet_tx = pet_tx[~pet_tx.index.isin(known_user_found.index)]</span>
+        <span class="n">known_user_found</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">known_user_found</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())))</span>
+
+    <span class="c1"># CoinJoin tx</span>
+    <span class="n">coinjoin_found</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">if</span> <span class="n">coinjoin_tx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">coinjoin_found</span> <span class="o">=</span> <span class="n">coinjoin_tx</span><span class="p">[</span><span class="n">coinjoin_tx</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coinjoin_found</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">new_tx_tainted2</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="p">[</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">coinjoin_found</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+            <span class="n">new_tx_tainted2</span><span class="p">[</span><span class="s1">&#39;pets&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coinjoin_found</span><span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">]</span>
+            <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="p">[</span><span class="o">~</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">coinjoin_found</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+            <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_tx_tainted2</span><span class="p">)</span>
+            <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+        <span class="n">pet_tx</span> <span class="o">=</span> <span class="n">pet_tx</span><span class="p">[</span><span class="o">~</span><span class="n">pet_tx</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">coinjoin_found</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>  <span class="c1"># remove known coinjoin_tx from unidentified</span>
+        <span class="n">coinjoin_found</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">coinjoin_found</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())))</span>
+
+    <span class="c1"># Mixer tx</span>
+    <span class="n">mixer_adr_found</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">mixer_tx_found</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">if</span> <span class="n">mixer_adr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mixer_adr_found</span> <span class="o">=</span> <span class="n">tx_tainted</span><span class="p">[</span><span class="n">tx_tainted</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">mixer_adr</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;output_value&#39;</span><span class="p">,</span> <span class="s1">&#39;spent_index&#39;</span><span class="p">])</span>  <span class="c1"># find tx with mixer adr</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mixer_adr_found</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">mixer_adr_found</span> <span class="o">=</span> <span class="n">tx_tainted</span><span class="p">[</span><span class="n">tx_tainted</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">mixer_adr</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+                <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;output_value&#39;</span><span class="p">,</span> <span class="s1">&#39;spent_index&#39;</span><span class="p">])</span>  <span class="c1"># find tx with mixer adr</span>
+            <span class="n">mixer_adr_found</span> <span class="o">=</span> <span class="n">mixer_adr_found</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;adr_index&#39;</span><span class="p">)</span>
+            <span class="n">mixer_adr_found</span> <span class="o">=</span> <span class="n">mixer_adr_found</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">mixer_adr</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">mixer_adr_found</span> <span class="o">=</span> <span class="n">mixer_adr_found</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span>
+            <span class="n">mixer_adr_found</span> <span class="o">=</span> <span class="n">mixer_adr_found</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;entity&#39;</span><span class="p">:</span> <span class="s1">&#39;pets&#39;</span><span class="p">})</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mixer_adr_found</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="p">[</span><span class="o">~</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">mixer_adr_found</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+            <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mixer_adr_found</span><span class="p">)</span>
+            <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+        <span class="n">pet_tx</span> <span class="o">=</span> <span class="n">pet_tx</span><span class="p">[</span><span class="o">~</span><span class="n">pet_tx</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">mixer_adr_found</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>  <span class="c1"># remove known mixer from unidentified</span>
+        <span class="n">mixer_adr_found</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">mixer_adr_found</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())))</span>
+
+        <span class="n">new_tx_tainted2</span> <span class="o">=</span> <span class="n">mixer_tx</span><span class="p">[</span><span class="n">mixer_tx</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">new_tx_tainted2</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;entity&#39;</span><span class="p">:</span> <span class="s1">&#39;pets&#39;</span><span class="p">})</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_tx_tainted2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="p">[</span><span class="o">~</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">new_tx_tainted2</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+            <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_tx_tainted2</span><span class="p">)</span>
+            <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+        <span class="n">mixer_tx_found</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">new_tx_tainted2</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())))</span>
+
+    <span class="c1"># lightning_tx network tx</span>
+    <span class="n">lightning_count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">if</span> <span class="n">lightning_tx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df1</span> <span class="o">=</span> <span class="n">lightning_tx</span><span class="p">[</span><span class="n">lightning_tx</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">new_tx_tainted2</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="p">[</span><span class="o">~</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">df1</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+            <span class="n">new_tx_tainted2</span><span class="p">[</span><span class="s1">&#39;pets&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;lightning_tx&#39;</span>  <span class="c1"># df1[&#39;type&#39;]</span>
+            <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_tx_tainted2</span><span class="p">)</span>
+            <span class="n">pet_tx</span> <span class="o">=</span> <span class="n">pet_tx</span><span class="p">[</span><span class="o">~</span><span class="n">pet_tx</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">df1</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>  <span class="c1"># remove identified lightning_tx from unidentified</span>
+        <span class="n">lightning_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">df1</span><span class="o">.</span><span class="n">index</span><span class="p">)))</span>
+
+    <span class="n">pets_found</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">pet_tx</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+    <span class="n">temp_df</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="p">[</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">pets_found</span><span class="p">)]</span>
+    <span class="n">temp_df</span><span class="p">[</span><span class="s1">&#39;pets&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="p">[</span><span class="o">~</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">pets_found</span><span class="p">)]</span>
+    <span class="n">new_tx_tainted</span><span class="p">[</span><span class="s1">&#39;pets&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_df</span><span class="p">)</span>
+    <span class="n">new_tx_tainted</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+    <span class="n">pets_found</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pets_found</span><span class="p">)</span>
+
+    <span class="n">total_tx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())))</span>
+
+    <span class="c1"># adr number per tx</span>
+    <span class="n">new_tx_tainted</span><span class="p">[</span><span class="s1">&#39;adr_per_tx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_count</span><span class="p">[</span><span class="s1">&#39;adr_per_tx&#39;</span><span class="p">]</span>
+    <span class="n">output_count</span> <span class="o">=</span> <span class="n">output_count</span><span class="p">[</span><span class="n">output_count</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">tx_size</span> <span class="o">=</span> <span class="n">output_count</span><span class="p">[</span><span class="s1">&#39;adr_per_tx&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tx_size</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># average adr per tx</span>
+        <span class="n">tx_size_list</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">tx_size</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">tx_size</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tx_size_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="c1"># fee rate</span>
+    <span class="n">fee_byte_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">if</span> <span class="n">tx_fee</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">tx_fee</span> <span class="o">=</span> <span class="n">tx_fee</span><span class="p">[</span><span class="n">tx_fee</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">new_tx_tainted</span><span class="p">[</span><span class="s1">&#39;fee_value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tx_fee</span><span class="p">[</span><span class="s1">&#39;fee_value&#39;</span><span class="p">]</span>
+        <span class="n">new_tx_tainted</span><span class="p">[</span><span class="s1">&#39;fee_rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tx_fee</span><span class="p">[</span><span class="s1">&#39;fee_rate&#39;</span><span class="p">]</span>
+
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">tx_height</span><span class="p">[</span><span class="n">tx_height</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">new_tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;block_index&#39;</span><span class="p">)</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df2</span><span class="p">,</span> <span class="n">avg_tx_fee</span><span class="p">[</span><span class="n">avg_tx_fee</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">df2</span><span class="o">.</span><span class="n">index</span><span class="p">)],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_tx_tainted</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">df2</span><span class="p">))</span>
+        <span class="n">new_tx_tainted</span><span class="p">[</span><span class="s1">&#39;fee_dif&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="p">[</span><span class="s1">&#39;fee_rate&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df2</span><span class="p">[</span><span class="s1">&#39;fee_rate&#39;</span><span class="p">]</span>
+
+        <span class="n">fee_byte_list</span> <span class="o">=</span> <span class="n">new_tx_tainted</span><span class="p">[</span><span class="s1">&#39;fee_dif&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fee_byte_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">fee_byte_list</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">fee_byte_list</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">fee_byte_list</span><span class="p">)</span>
+
+    <span class="n">a_series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">case_name</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">total_address</span><span class="p">,</span> <span class="n">reuse_df</span><span class="p">,</span> <span class="n">fresh_reuse</span><span class="p">,</span> <span class="n">fresh_df</span><span class="p">,</span> <span class="n">service_adr</span><span class="p">,</span> <span class="n">service_tx</span><span class="p">,</span> <span class="n">total_tx</span><span class="p">,</span> <span class="n">pets_found</span><span class="p">,</span> <span class="n">coinjoin_found</span><span class="p">,</span> <span class="n">mixer_adr</span><span class="p">,</span>
+         <span class="n">mixer_adr_found</span><span class="p">,</span> <span class="n">mixer_tx_found</span><span class="p">,</span> <span class="n">known_user_found</span><span class="p">,</span> <span class="n">tx_size_list</span><span class="p">,</span> <span class="n">fee_byte_list</span><span class="p">,</span> <span class="n">lightning_count</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">taintedtx</span><span class="o">.</span><span class="n">evaluate</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">taintedtx</span><span class="o">.</span><span class="n">evaluate</span> <span class="o">=</span> <span class="n">taintedtx</span><span class="o">.</span><span class="n">evaluate</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a_series</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_tx_tainted</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Tin.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

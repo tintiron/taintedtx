@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utility.neo4j_export &mdash; taintedtx latest documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> taintedtx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html">Example 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-2">Example 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-3">Example 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/reference.html">Library Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">taintedtx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>utility.neo4j_export</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for utility.neo4j_export</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">chained_assignment</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="neo4j_export"><a class="viewcode-back" href="../../reference/export/export.html#utility.neo4j_export.neo4j_export">[docs]</a><span class="k">def</span> <span class="nf">neo4j_export</span><span class="p">(</span><span class="n">tttx</span><span class="p">,</span> <span class="n">export_path</span><span class="o">=</span><span class="s1">&#39;export/&#39;</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="s1">&#39;detailed&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Export dataframes from TaintedTX object to csv file for neo4j import.</span>
+
+<span class="sd">    :param tttx: TaintedTX object.</span>
+<span class="sd">    :param export_path: String of folder path for the exported files.</span>
+<span class="sd">    :param option: String of the option name that dictates how the neo4j exported data structure.</span>
+
+<span class="sd">    &#39;detailed&#39; includes block/tx/output/input/adr as their own nodes.</span>
+<span class="sd">    &#39;simple&#39; includes only adr and tx as node and put output/input as relationship detail.</span>
+<span class="sd">    &#39;outputonly&#39; includes only output as node.</span>
+
+<span class="sd">    :return: csv files containing header for nodes and relationships.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;detailed&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Use this import code for neo4j import</span>
+<span class="sd">        $NEO4J_HOME/bin/neo4j-admin import \</span>
+<span class="sd">        --mode csv \</span>
+<span class="sd">        --database blockchain.db \</span>
+<span class="sd">        --nodes:Block blocks_header.csv,blocks.csv \</span>
+<span class="sd">        --nodes:Transaction txhash_header.csv,txhash.csv \</span>
+<span class="sd">        --nodes:Address address_header.csv,adr.csv \</span>
+<span class="sd">        --nodes:Output output_header.csv,output.csv \</span>
+<span class="sd">        --nodes:Input input_header.csv,input.csv \</span>
+<span class="sd">        --relationships:In txheight_header.csv,tx_height.csv \</span>
+<span class="sd">        --relationships:OUTPUT rel_txoutput_header.csv,rel_txoutput.csv \</span>
+<span class="sd">        --relationships:INPUT rel_txinput_header.csv,rel_txinput.csv \</span>
+<span class="sd">        --relationships:RECEIVE rel_addressoutput_header.csv,rel_addressoutput.csv \</span>
+<span class="sd">        --relationships:SEND rel_addressinput_header.csv,rel_addressinput.csv \ &quot;&quot;&quot;</span>
+        <span class="n">export_path</span> <span class="o">+=</span> <span class="s1">&#39;detailed/&#39;</span>
+        <span class="n">oldoutputindex</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_output</span><span class="p">[</span><span class="s1">&#39;output_index&#39;</span><span class="p">]</span>
+        <span class="n">tttx</span><span class="o">.</span><span class="n">tx_output</span><span class="p">[</span><span class="s1">&#39;output_index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tttx</span><span class="o">.</span><span class="n">tx_output</span><span class="p">))</span>
+        <span class="n">tttx</span><span class="o">.</span><span class="n">tx_input</span><span class="p">[</span><span class="s1">&#39;input_index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tttx</span><span class="o">.</span><span class="n">tx_input</span><span class="p">))</span>
+        
+        <span class="c1"># rel_txoutput.csv for link between output and tx</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_output</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="n">df2</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tttx</span><span class="o">.</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;address_index&#39;</span><span class="p">,</span> <span class="s1">&#39;output_value&#39;</span><span class="p">])</span>
+        <span class="n">df2</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;rel_txoutput.csv&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># output.csv for amount of output</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_output</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;address_index&#39;</span><span class="p">])</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">&#39;output_index&#39;</span><span class="p">])</span>
+        <span class="n">df2</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;output.csv&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># rel_addressoutput.csv for output adr</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_output</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;output_value&#39;</span><span class="p">])</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="n">df2</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tttx</span><span class="o">.</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">&#39;output_index&#39;</span><span class="p">])</span>
+        <span class="n">df2</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;rel_addressoutput.csv&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># rel_txinput.csv for link between input and tx</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_input</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="n">df2</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tttx</span><span class="o">.</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">input_address</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="s1">&#39;address_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;address_index&#39;</span><span class="p">,</span> <span class="s1">&#39;input_value&#39;</span><span class="p">])</span>
+        <span class="n">df2</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;rel_txinput.csv&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># input.csv for amount of input</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_input</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;address_index&#39;</span><span class="p">])</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">&#39;input_index&#39;</span><span class="p">])</span>
+        <span class="n">df2</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;input.csv&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># rel_addressinput.csv for input adr</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_input</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;input_value&#39;</span><span class="p">])</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="n">df2</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tttx</span><span class="o">.</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">&#39;input_index&#39;</span><span class="p">])</span>
+        <span class="n">df2</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;rel_addressinput.csv&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># blocks.csv for list of block and detail</span>
+        <span class="n">tttx</span><span class="o">.</span><span class="n">block</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">block</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">&#39;blockindex&#39;</span><span class="p">])</span>
+        <span class="n">tttx</span><span class="o">.</span><span class="n">block</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;blocks.csv&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># tx_height.csv for link between tx and block</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_height</span><span class="p">[</span><span class="n">tttx</span><span class="o">.</span><span class="n">tx_height</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tttx</span><span class="o">.</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">df2</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;tx_height.csv&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># txhash.csv for list of tx hash</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_check</span><span class="p">(</span><span class="n">input_type</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">tx</span><span class="o">=</span><span class="n">tttx</span><span class="o">.</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">df2</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;tx_hash.csv&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># create header file for csv import to neo4j</span>
+
+        <span class="c1"># blocks.csv header</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;blocks_header.csv&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">filewriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+            <span class="n">filewriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;blockindex:ID(block)&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;blockhash&#39;</span><span class="p">,</span> <span class="s1">&#39;miner&#39;</span><span class="p">,</span> <span class="s1">&#39;feeperbyte&#39;</span><span class="p">])</span>
+        <span class="n">csvfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># adr.csv header</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;address_header.csv&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">filewriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+            <span class="n">filewriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;adr:ID(address_index)&#39;</span><span class="p">,</span> <span class="s1">&#39;address_hash&#39;</span><span class="p">])</span>
+        <span class="n">csvfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># input.csv header</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;input_header.csv&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">filewriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+            <span class="n">filewriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;inputindex:ID(input_index)&#39;</span><span class="p">,</span> <span class="s1">&#39;input_value&#39;</span><span class="p">])</span>
+        <span class="n">csvfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># output.csv header</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;output_header.csv&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">filewriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+            <span class="n">filewriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;outputindex:ID(output_index)&#39;</span><span class="p">,</span> <span class="s1">&#39;output_value&#39;</span><span class="p">])</span>
+        <span class="n">csvfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># rel_addressinput.csv header</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;rel_addressinput_header.csv&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">filewriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+            <span class="n">filewriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;:END_ID(input_index)&#39;</span><span class="p">,</span> <span class="s1">&#39;:START_ID(address_index)&#39;</span><span class="p">])</span>
+        <span class="n">csvfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># rel_addressoutput.csv header</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;rel_addressoutput_header.csv&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">filewriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+            <span class="n">filewriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;:START_ID(output_index)&#39;</span><span class="p">,</span> <span class="s1">&#39;:END_ID(address_index)&#39;</span><span class="p">])</span>
+        <span class="n">csvfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># rel_txinput.csv header</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;rel_txinput_header.csv&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">filewriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+            <span class="n">filewriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;:END_ID(tx_index)&#39;</span><span class="p">,</span> <span class="s1">&#39;:START_ID(input_index)&#39;</span><span class="p">])</span>
+        <span class="n">csvfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># rel_txoutput.csv header</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;rel_txoutput_header.csv&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">filewriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+            <span class="n">filewriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;:START_ID(tx_index)&#39;</span><span class="p">,</span> <span class="s1">&#39;:END_ID(output_index)&#39;</span><span class="p">])</span>
+        <span class="n">csvfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># txhash.csv header</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;txhash_header.csv&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">filewriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+            <span class="n">filewriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;tx_index:ID(tx_index)&#39;</span><span class="p">,</span> <span class="s1">&#39;tx_hash&#39;</span><span class="p">])</span>
+        <span class="n">csvfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># tx_height</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;txheight_header.csv&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">filewriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+            <span class="n">filewriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;:START_ID(tx_index)&#39;</span><span class="p">,</span> <span class="s1">&#39;:END_ID(block)&#39;</span><span class="p">])</span>
+        <span class="n">csvfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># change df back</span>
+        <span class="n">tttx</span><span class="o">.</span><span class="n">tx_output</span> <span class="o">=</span> <span class="n">oldoutputindex</span>
+        <span class="n">tttx</span><span class="o">.</span><span class="n">tx_input</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_input</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;input_index&#39;</span><span class="p">])</span>
+
+    <span class="k">elif</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;simple&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Use this import code for neo4j import</span>
+<span class="sd">        $NEO4J_HOME/bin/neo4j-admin import \</span>
+<span class="sd">        --mode csv \</span>
+<span class="sd">        --database blockchain.db \</span>
+<span class="sd">        --nodes:Transaction txhash_header.csv,txhash.csv \</span>
+<span class="sd">        --nodes:Address address_header.csv,adr.csv \</span>
+<span class="sd">        --relationships:RECEIVE rel_addressoutput_header.csv,rel_addressoutput.csv \</span>
+<span class="sd">        --relationships:SEND rel_addressinput_header.csv,rel_addressinput.csv \ &quot;&quot;&quot;</span>
+        <span class="n">export_path</span> <span class="o">+=</span> <span class="s1">&#39;simple/&#39;</span>
+
+        <span class="c1"># rel_addressoutput.csv for output adr</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_output</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="n">df2</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tttx</span><span class="o">.</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[[</span><span class="s1">&#39;output_value&#39;</span><span class="p">,</span> <span class="s1">&#39;address_index&#39;</span><span class="p">]]</span>
+        <span class="n">df2</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;rel_addressoutput.csv&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># rel_addressinput.csv for input adr</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_input</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="n">df2</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tttx</span><span class="o">.</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[[</span><span class="s1">&#39;input_value&#39;</span><span class="p">,</span> <span class="s1">&#39;address_index&#39;</span><span class="p">]]</span>
+        <span class="n">input_address</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="s1">&#39;address_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;tx_index&#39;</span><span class="p">,</span> <span class="s1">&#39;address_index&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;tx_index&#39;</span><span class="p">)</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[[</span><span class="s1">&#39;input_value&#39;</span><span class="p">,</span> <span class="s1">&#39;address_index&#39;</span><span class="p">]]</span>
+        <span class="n">df2</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;rel_addressinput.csv&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># txhash.csv for list of tx</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_check</span><span class="p">(</span><span class="n">input_type</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">tx</span><span class="o">=</span><span class="n">tttx</span><span class="o">.</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+        <span class="n">df2</span><span class="p">[</span><span class="s1">&#39;block&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_height</span><span class="p">[</span><span class="n">tttx</span><span class="o">.</span><span class="n">tx_height</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">df2</span><span class="o">.</span><span class="n">index</span><span class="p">)][</span><span class="s1">&#39;block_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">df2</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;txhash.csv&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># create header file for csv import to neo4j</span>
+
+        <span class="c1"># adr.csv header</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;address_header.csv&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">filewriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+            <span class="n">filewriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;adr:ID(address_index)&#39;</span><span class="p">,</span> <span class="s1">&#39;address_hash&#39;</span><span class="p">,</span> <span class="s1">&#39;taint&#39;</span><span class="p">,</span> <span class="s1">&#39;service_name&#39;</span><span class="p">,</span> <span class="s1">&#39;service_type&#39;</span><span class="p">])</span>
+        <span class="n">csvfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># rel_addressinput.csv header</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;rel_addressinput_header.csv&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">filewriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+            <span class="n">filewriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;:END_ID(tx_index)&#39;</span><span class="p">,</span> <span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="s1">&#39;:START_ID(address_index)&#39;</span><span class="p">])</span>
+        <span class="n">csvfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># rel_addressoutput.csv header</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;rel_addressoutput_header.csv&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">filewriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+            <span class="n">filewriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;:START_ID(tx_index)&#39;</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;:END_ID(address_index)&#39;</span><span class="p">])</span>
+        <span class="n">csvfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># txhash.csv header</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;txhash_header.csv&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">filewriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+            <span class="n">filewriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;tx_index:ID(tx_index)&#39;</span><span class="p">,</span> <span class="s1">&#39;tx_hash&#39;</span><span class="p">,</span> <span class="s1">&#39;block&#39;</span><span class="p">])</span>
+        <span class="n">csvfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">elif</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;outputonly&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Use this import code for neo4j import</span>
+<span class="sd">        $NEO4J_HOME/bin/neo4j-admin import \</span>
+<span class="sd">        --mode csv \</span>
+<span class="sd">        --database blockchain.db \</span>
+<span class="sd">        --nodes:Output output_header.csv,output.csv \</span>
+<span class="sd">        --relationships:SEND rel_outputsend_header.csv,rel_outputsend.csv \ &quot;&quot;&quot;</span>
+        <span class="n">export_path</span> <span class="o">+=</span> <span class="s1">&#39;outputonly/&#39;</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_output</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="n">df2</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">tttx</span><span class="o">.</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">df3</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_check</span><span class="p">(</span><span class="n">input_type</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">tx</span><span class="o">=</span><span class="n">tttx</span><span class="o">.</span><span class="n">tx_tainted</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df3</span><span class="p">)</span>
+        <span class="n">address_list</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_tainted</span><span class="p">[</span><span class="s1">&#39;address_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">addressdf</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">address_check</span><span class="p">(</span><span class="n">address_list</span><span class="p">)</span>
+        <span class="n">addressdf</span> <span class="o">=</span> <span class="n">addressdf</span><span class="p">[</span><span class="n">addressdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">address_list</span><span class="p">)]</span>
+        <span class="n">addressdf</span> <span class="o">=</span> <span class="n">addressdf</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">addressdf</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;address_index&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;address_index&quot;</span><span class="p">)</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;output_index&#39;</span><span class="p">,</span> <span class="s1">&#39;address_index&#39;</span><span class="p">])</span>
+        <span class="n">df2</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;output.csv&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># create header file for csv import to neo4j</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;output_header.csv&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">filewriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+            <span class="n">filewriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;tx_index:ID(tx_index)&#39;</span><span class="p">,</span> <span class="s1">&#39;tx_hash&#39;</span><span class="p">,</span> <span class="s1">&#39;address_hash&#39;</span><span class="p">,</span> <span class="s1">&#39;output_value&#39;</span><span class="p">,</span> <span class="s1">&#39;spent_index&#39;</span><span class="p">])</span>
+        <span class="n">csvfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># rel_addressinput.csv header</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;rel_outputsend_header.csv&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">filewriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+            <span class="n">filewriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;:END_ID(tx_index)&#39;</span><span class="p">,</span> <span class="s1">&#39;output_value&#39;</span><span class="p">,</span> <span class="s1">&#39;:START_ID(spent_index)&#39;</span><span class="p">])</span>
+        <span class="n">csvfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c1"># adr info</span>
+    <span class="k">if</span> <span class="n">option</span> <span class="o">!=</span> <span class="s1">&#39;outputonly&#39;</span><span class="p">:</span>
+        <span class="n">address_list</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">tx_tainted</span><span class="p">[</span><span class="s1">&#39;address_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">address_list</span> <span class="o">=</span> <span class="n">address_list</span> <span class="o">+</span> <span class="n">input_address</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="c1"># make one adr into list so can be used with pandas isin command</span>
+        <span class="n">addressdf</span> <span class="o">=</span> <span class="n">tttx</span><span class="o">.</span><span class="n">address_check</span><span class="p">(</span><span class="n">address_list</span><span class="p">)</span>
+        <span class="n">addressdf</span> <span class="o">=</span> <span class="n">addressdf</span><span class="p">[</span><span class="n">addressdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">address_list</span><span class="p">)]</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">addressdf</span><span class="p">)</span>
+        <span class="c1"># stop searching when found all input adr</span>
+
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="o">~</span><span class="n">df2</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s1">&#39;first&#39;</span><span class="p">)]</span>
+        <span class="n">df2</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="s1">&#39;adr.csv&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Tin.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

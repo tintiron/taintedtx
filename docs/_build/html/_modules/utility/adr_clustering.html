@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utility.adr_clustering &mdash; taintedtx latest documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> taintedtx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html">Example 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-2">Example 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-3">Example 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/reference.html">Library Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">taintedtx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>utility.adr_clustering</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for utility.adr_clustering</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">chained_assignment</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># default=&#39;warn&#39;</span>
+
+
+<div class="viewcode-block" id="clustering"><a class="viewcode-back" href="../../reference/adr_clustering/adr_clustering.html#utility.adr_clustering.clustering">[docs]</a><span class="k">def</span> <span class="nf">clustering</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">check</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">coinjoin_tx</span><span class="p">,</span> <span class="n">exclude</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Address clustering process</span>
+
+<span class="sd">    :param cluster: DataFrame containing clustered adr for adding more.</span>
+<span class="sd">    :param check: List of adr to perform clustering.</span>
+<span class="sd">    :param done: List of adr already clustered.</span>
+<span class="sd">    :param depth: Number of the current loop.</span>
+<span class="sd">    :param df: Either tx_input or tx_output</span>
+<span class="sd">    :param coinjoin_tx: coinjoin transaction dataframe, can be empty.</span>
+<span class="sd">    :param exclude: List of addresses to exclude from clustering.</span>
+
+<span class="sd">    :return: DataFrame containing addresses belonging to the same cluster.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">done</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">done</span> <span class="o">+</span> <span class="n">check</span><span class="p">))</span>  <span class="c1"># add adr searching in this loop</span>
+    <span class="n">check</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">check</span><span class="p">)]</span>  <span class="c1"># find tx</span>
+    <span class="n">check</span> <span class="o">=</span> <span class="n">check</span><span class="p">[</span><span class="o">~</span><span class="n">check</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">exclude</span><span class="p">)]</span>
+
+    <span class="k">if</span> <span class="n">coinjoin_tx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">check</span> <span class="o">=</span> <span class="n">check</span><span class="p">[</span><span class="o">~</span><span class="n">check</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">coinjoin_tx</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="n">check</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">check</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>  <span class="c1"># find adr</span>
+    <span class="n">check</span> <span class="o">=</span> <span class="n">check</span><span class="p">[</span><span class="o">~</span><span class="n">check</span><span class="p">[</span><span class="s1">&#39;adr_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s1">&#39;adr_index&#39;</span><span class="p">)[</span>
+        <span class="s1">&#39;adr_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>  <span class="c1"># remove adr already in result</span>
+
+    <span class="n">check2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">check</span><span class="p">)</span>
+    <span class="n">check2</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">depth</span>  <span class="c1"># add adr index to cluster</span>
+    <span class="n">cluster</span> <span class="o">=</span> <span class="n">cluster</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">check2</span><span class="p">)</span>
+    <span class="n">check</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">done</span><span class="p">,</span> <span class="n">check</span><span class="p">))</span>  <span class="c1"># remove adr already searched from next check</span>
+    <span class="k">return</span> <span class="n">cluster</span><span class="p">,</span> <span class="n">check</span><span class="p">,</span> <span class="n">done</span></div>
+
+
+<div class="viewcode-block" id="adr_cluster"><a class="viewcode-back" href="../../reference/adr_clustering/adr_clustering.html#utility.adr_clustering.adr_cluster">[docs]</a><span class="k">def</span> <span class="nf">adr_cluster</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">heuristic</span><span class="p">,</span> <span class="n">tx_input</span><span class="p">,</span> <span class="n">tx_output</span><span class="p">,</span> <span class="n">depth_limit</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">coinjoin_tx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">()):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A simple input sharing clustering on a group of starting adr (the group input imply that all addresses in the list belong to the same entity)</span>
+
+<span class="sd">    :param target: List or string of address index to perform clustering.</span>
+<span class="sd">    :param heuristic: Either &#39;multi-input&#39; or &#39;multi-output&#39; to select clustering heuristic to perform.</span>
+<span class="sd">    :param tx_input: DataFrame containing tx input data.</span>
+<span class="sd">    :param tx_output: DataFrame containing tx output data.</span>
+<span class="sd">    :param depth_limit: Number for how many clustering loop to be performed.</span>
+<span class="sd">    :param coinjoin_tx: Optional coinjoin transaction dataframe for preventing the coinjoin transaction clustering.</span>
+<span class="sd">    :param exclude: List of addresses to exclude from clustering.</span>
+
+<span class="sd">    :return: DataFrame containing addresses belonging to the same cluster.</span>
+
+<span class="sd">    tx_input and tx_output recommends trimming the data first and remove unnecessary data first to improve speed performance using something similar as the below script snippet</span>
+<span class="sd">    tx_input = tx_input.drop(columns=[&#39;input_value&#39;,&#39;spent_index&#39;]).set_index(&#39;tx_index&#39;)  # remove unused column</span>
+<span class="sd">    tx_input = tx_input.reset_index().drop_duplicates().set_index(&#39;tx_index&#39;)  # remove duplicate adr in same tx</span>
+<span class="sd">    tx_input2 = tx_input.groupby(&#39;tx_index&#39;).count() # check for a single input tx</span>
+<span class="sd">    tx_input2 = tx_input2[tx_input2[&#39;adr_index&#39;] &gt; 1]</span>
+<span class="sd">    tx_input = tx_input[tx_input.index.isin(tx_input2.index)]  # remove single input</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">cluster</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">])</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">done</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">heuristic</span> <span class="o">==</span> <span class="s2">&quot;multi-input&quot;</span><span class="p">:</span>  <span class="c1"># input clustering</span>
+            <span class="n">check</span> <span class="o">=</span> <span class="n">target</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="n">check</span> <span class="o">=</span> <span class="p">[</span><span class="n">target</span><span class="p">]</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">depth</span> <span class="o">!=</span> <span class="n">depth_limit</span><span class="p">:</span>
+                <span class="n">cluster</span><span class="p">,</span> <span class="n">check</span><span class="p">,</span> <span class="n">done</span> <span class="o">=</span> <span class="n">clustering</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">check</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">tx_input</span><span class="p">,</span> <span class="n">coinjoin_tx</span><span class="p">,</span> <span class="n">exclude</span><span class="p">)</span>
+                <span class="n">depth</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">elif</span> <span class="n">heuristic</span> <span class="o">==</span> <span class="s2">&quot;multi-output&quot;</span><span class="p">:</span>  <span class="c1"># output clustering</span>
+            <span class="n">check</span> <span class="o">=</span> <span class="n">target</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="n">check</span> <span class="o">=</span> <span class="p">[</span><span class="n">target</span><span class="p">]</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">depth</span> <span class="o">!=</span> <span class="n">depth_limit</span><span class="p">:</span>
+                <span class="n">cluster</span><span class="p">,</span> <span class="n">check</span><span class="p">,</span> <span class="n">done</span> <span class="o">=</span> <span class="n">clustering</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">check</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">tx_output</span><span class="p">,</span> <span class="n">coinjoin_tx</span><span class="p">,</span> <span class="n">exclude</span><span class="p">)</span>
+                <span class="n">depth</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>  <span class="c1"># return current results when interrupt</span>
+        <span class="k">return</span> <span class="n">cluster</span>
+    <span class="k">return</span> <span class="n">cluster</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Tin.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

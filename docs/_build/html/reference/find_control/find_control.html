@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Control Groups Finding &mdash; taintedtx latest documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Database Export" href="../export/export.html" />
+    <link rel="prev" title="Lightning Transaction Detection" href="../lightning/lightning.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> taintedtx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html">Example 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-2">Example 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-3">Example 3</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference.html">Library Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../taintedtx/taintedtx.html">TaintedTX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../adr_clustering/adr_clustering.html">Address Clustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../analysis/analysis.html">Transaction Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pets/pets.html">PETs Transaction Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../lightning/lightning.html">Lightning Transaction Detection</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Control Groups Finding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../export/export.html">Database Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utility/utility.html">Utility Functions</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">taintedtx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../reference.html">Library Reference</a> &raquo;</li>
+      <li>Control Groups Finding</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/reference/find_control/find_control.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="control-groups-finding">
+<h1>Control Groups Finding<a class="headerlink" href="#control-groups-finding" title="Permalink to this headline"></a></h1>
+<blockquote>
+<div><span class="target" id="module-utility.find_control"></span><dl class="py function">
+<dt class="sig sig-object py" id="utility.find_control.find_control">
+<span class="sig-prename descclassname"><span class="pre">utility.find_control.</span></span><span class="sig-name descname"><span class="pre">find_control</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">taintedtx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_option</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/utility/find_control.html#find_control"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utility.find_control.find_control" title="Permalink to this definition"></a></dt>
+<dd><p>Find transaction control groups.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>taintedtx</strong> – TaintedTX object.</p></li>
+<li><p><strong>target_list</strong> – List of targeted addresss or transactions.</p></li>
+<li><p><strong>search_type</strong> – ‘tx’ for transaction search and ‘adr’ for address search.</p></li>
+<li><p><strong>value</strong> – Transaction value criterion in smallest unit.</p></li>
+<li><p><strong>limit_option</strong> – day number limit in np.datetime64 e.g., np.timedelta64(10, ‘D’)</p></li>
+<li><p><strong>input_count</strong> – Transaction input number criterion.</p></li>
+<li><p><strong>output_count</strong> – Transaction output number criterion.</p></li>
+<li><p><strong>value_range</strong> – Range of acceptable transaction value.</p></li>
+<li><p><strong>case_name</strong> – Name of the case used for saving into file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame with list of potential transaction control groups.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../lightning/lightning.html" class="btn btn-neutral float-left" title="Lightning Transaction Detection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../export/export.html" class="btn btn-neutral float-right" title="Database Export" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Tin.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

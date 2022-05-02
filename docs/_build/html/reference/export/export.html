@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Database Export &mdash; taintedtx latest documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Utility Functions" href="../utility/utility.html" />
+    <link rel="prev" title="Control Groups Finding" href="../find_control/find_control.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> taintedtx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html">Example 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-2">Example 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-3">Example 3</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference.html">Library Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../taintedtx/taintedtx.html">TaintedTX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../adr_clustering/adr_clustering.html">Address Clustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../analysis/analysis.html">Transaction Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pets/pets.html">PETs Transaction Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../lightning/lightning.html">Lightning Transaction Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../find_control/find_control.html">Control Groups Finding</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Database Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utility/utility.html">Utility Functions</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">taintedtx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../reference.html">Library Reference</a> &raquo;</li>
+      <li>Database Export</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/reference/export/export.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="database-export">
+<h1>Database Export<a class="headerlink" href="#database-export" title="Permalink to this headline"></a></h1>
+<blockquote>
+<div><span class="target" id="module-utility.neo4j_export"></span><dl class="py function">
+<dt class="sig sig-object py" id="utility.neo4j_export.neo4j_export">
+<span class="sig-prename descclassname"><span class="pre">utility.neo4j_export.</span></span><span class="sig-name descname"><span class="pre">neo4j_export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tttx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'export/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'detailed'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/utility/neo4j_export.html#neo4j_export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utility.neo4j_export.neo4j_export" title="Permalink to this definition"></a></dt>
+<dd><p>Export dataframes from TaintedTX object to csv file for neo4j import.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tttx</strong> – TaintedTX object.</p></li>
+<li><p><strong>export_path</strong> – String of folder path for the exported files.</p></li>
+<li><p><strong>option</strong> – String of the option name that dictates how the neo4j exported data structure.</p></li>
+</ul>
+</dd>
+</dl>
+<p>‘detailed’ includes block/tx/output/input/adr as their own nodes.
+‘simple’ includes only adr and tx as node and put output/input as relationship detail.
+‘outputonly’ includes only output as node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>csv files containing header for nodes and relationships.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../find_control/find_control.html" class="btn btn-neutral float-left" title="Control Groups Finding" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../utility/utility.html" class="btn btn-neutral float-right" title="Utility Functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Tin.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaintedTX &mdash; taintedtx latest documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Address Clustering" href="../adr_clustering/adr_clustering.html" />
+    <link rel="prev" title="Library Reference" href="../reference.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> taintedtx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html">Example 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-2">Example 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example-usage.html#example-3">Example 3</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference.html">Library Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">TaintedTX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../adr_clustering/adr_clustering.html">Address Clustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../analysis/analysis.html">Transaction Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pets/pets.html">PETs Transaction Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../lightning/lightning.html">Lightning Transaction Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../find_control/find_control.html">Control Groups Finding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../export/export.html">Database Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utility/utility.html">Utility Functions</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">taintedtx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../reference.html">Library Reference</a> &raquo;</li>
+      <li>TaintedTX</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/reference/taintedtx/taintedtx.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-taintedtx">
+<span id="taintedtx"></span><h1>TaintedTX<a class="headerlink" href="#module-taintedtx" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="taintedtx.TaintedTX">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">taintedtx.</span></span><span class="sig-name descname"><span class="pre">TaintedTX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taintedtx.html#TaintedTX"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taintedtx.TaintedTX" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="taintedtx.TaintedTX.__dict__">
+<span class="sig-name descname"><span class="pre">__dict__</span></span><em class="property"> <span class="pre">=</span> <span class="pre">mappingproxy({'__module__':</span> <span class="pre">'taintedtx',</span> <span class="pre">'__init__':</span> <span class="pre">&lt;function</span> <span class="pre">TaintedTX.__init__&gt;,</span> <span class="pre">'prepare_data':</span> <span class="pre">&lt;function</span> <span class="pre">TaintedTX.prepare_data&gt;,</span> <span class="pre">'adr_check':</span> <span class="pre">&lt;function</span> <span class="pre">TaintedTX.adr_check&gt;,</span> <span class="pre">'tx_check':</span> <span class="pre">&lt;function</span> <span class="pre">TaintedTX.tx_check&gt;,</span> <span class="pre">'limit_search_range':</span> <span class="pre">&lt;function</span> <span class="pre">TaintedTX.limit_search_range&gt;,</span> <span class="pre">'tx_taint_search':</span> <span class="pre">&lt;function</span> <span class="pre">TaintedTX.tx_taint_search&gt;,</span> <span class="pre">'haircut_distribute':</span> <span class="pre">&lt;function</span> <span class="pre">TaintedTX.haircut_distribute&gt;,</span> <span class="pre">'order_tainting':</span> <span class="pre">&lt;function</span> <span class="pre">TaintedTX.order_tainting&gt;,</span> <span class="pre">'policy_tx_taint':</span> <span class="pre">&lt;function</span> <span class="pre">TaintedTX.policy_tx_taint&gt;,</span> <span class="pre">'dirtyfirst':</span> <span class="pre">&lt;function</span> <span class="pre">TaintedTX.dirtyfirst&gt;,</span> <span class="pre">'adr_taint_search':</span> <span class="pre">&lt;function</span> <span class="pre">TaintedTX.adr_taint_search&gt;,</span> <span class="pre">'filtering':</span> <span class="pre">&lt;function</span> <span class="pre">TaintedTX.filtering&gt;,</span> <span class="pre">'__dict__':</span> <span class="pre">&lt;attribute</span> <span class="pre">'__dict__'</span> <span class="pre">of</span> <span class="pre">'TaintedTX'</span> <span class="pre">objects&gt;,</span> <span class="pre">'__weakref__':</span> <span class="pre">&lt;attribute</span> <span class="pre">'__weakref__'</span> <span class="pre">of</span> <span class="pre">'TaintedTX'</span> <span class="pre">objects&gt;,</span> <span class="pre">'__doc__':</span> <span class="pre">None,</span> <span class="pre">'__annotations__':</span> <span class="pre">{}})</span></em><a class="headerlink" href="#taintedtx.TaintedTX.__dict__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="taintedtx.TaintedTX.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taintedtx.html#TaintedTX.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taintedtx.TaintedTX.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Starting main class for cryptocurrency tracking.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – string of folder path for specifying directory of blockchain databases folder e.g., ‘fulldatabases/’</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="taintedtx.TaintedTX.__module__">
+<span class="sig-name descname"><span class="pre">__module__</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'taintedtx'</span></em><a class="headerlink" href="#taintedtx.TaintedTX.__module__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="taintedtx.TaintedTX.__weakref__">
+<span class="sig-name descname"><span class="pre">__weakref__</span></span><a class="headerlink" href="#taintedtx.TaintedTX.__weakref__" title="Permalink to this definition"></a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="taintedtx.TaintedTX.adr_check">
+<span class="sig-name descname"><span class="pre">adr_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taintedtx.html#TaintedTX.adr_check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taintedtx.TaintedTX.adr_check" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieving address data from adr_hash file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_type</strong> – Either ‘adr_index’ for searching with address internal index or ‘adr_hash’ for public key hash</p></li>
+<li><p><strong>adr</strong> – List of addresses to search.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame with address hash and index or adr.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="taintedtx.TaintedTX.adr_taint_search">
+<span class="sig-name descname"><span class="pre">adr_taint_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_adr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continue_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taint_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backward</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taintedtx.html#TaintedTX.adr_taint_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taintedtx.TaintedTX.adr_taint_search" title="Permalink to this definition"></a></dt>
+<dd><p>Search for connected adr to the original and taint any direct address either forward or backward.
+specify depth_limit option to limit how many transaction depth to search but shouldn’t be used unless for testing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_adr</strong> – List of target address index.</p></li>
+<li><p><strong>depth_limit</strong> – DataFrame for public checking.</p></li>
+<li><p><strong>continue_mode</strong> – Continue from previous run. Will load from file with the same case_name.</p></li>
+<li><p><strong>taint_limit</strong> – list of two items [string to indicate for exclude during (‘taint’) of after tainting (‘after’), DataFrame of addresses for checking]</p></li>
+<li><p><strong>backward</strong> – Run the tainting backward instead of forward.</p></li>
+<li><p><strong>case_name</strong> – Name of the case used for saving into file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame with tainted transactions and DataFrame with tainted addresses.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="taintedtx.TaintedTX.dirtyfirst">
+<span class="sig-name descname"><span class="pre">dirtyfirst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tx_tainted</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taintedtx.html#TaintedTX.dirtyfirst"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taintedtx.TaintedTX.dirtyfirst" title="Permalink to this definition"></a></dt>
+<dd><p>process tx_tainted to keep only full dirty, policy must be either ‘dirtyfirst / df’ or ‘puredirtyfirst / pdf’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="taintedtx.TaintedTX.filtering">
+<span class="sig-name descname"><span class="pre">filtering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx_tainted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mix_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_input</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_chain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_reuse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_mix_fee</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_tx_fee</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taintedtx.html#TaintedTX.filtering"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taintedtx.TaintedTX.filtering" title="Permalink to this definition"></a></dt>
+<dd><p>Filter fault-positive transactions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tx_tainted</strong> – DataFrame containing clustered adr for adding more.</p></li>
+<li><p><strong>mix_time</strong> – Maximum mixing time allowed, must be in timedelta64 format (e.g., np.timedelta64(3, ‘D’))</p></li>
+<li><p><strong>filter_input</strong> – Number of the transaction inputs.</p></li>
+<li><p><strong>filter_output</strong> – Number of the transaction outputs.</p></li>
+<li><p><strong>filter_chain</strong> – the first item is number for input and second is for output. Item can be none.</p></li>
+<li><p><strong>filter_reuse</strong> – Remove transaction with reused input addresses.</p></li>
+<li><p><strong>filter_mix_fee</strong> – The first item being the number and second item being the type of calculation (‘fixed’ or ‘percent’)</p></li>
+<li><p><strong>filter_tx_fee</strong> – The first item is DataFrame with transaction fee, second item is for filter transaction fee value and third item is for filter transaction fee rate.</p></li>
+<li><p><strong>target</strong> – DataFrame containing targeted deposit coin output (optional but required for mix time and mixer fee calculation).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame after removing fault-positive results.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="taintedtx.TaintedTX.haircut_distribute">
+<span class="sig-name descname"><span class="pre">haircut_distribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx_tainted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tx_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taintedtx.html#TaintedTX.haircut_distribute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taintedtx.TaintedTX.haircut_distribute" title="Permalink to this definition"></a></dt>
+<dd><p>Distribute tainted coins according to the proportion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tx_tainted</strong> – DataFrame to perform distribution on.</p></li>
+<li><p><strong>tx_input</strong> – tx_input data.</p></li>
+<li><p><strong>search_df</strong> – searching_tx from policy_tx_taint as it should be run in on going search.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame with tainted coins from inputs distributed to outputs proportionally</p>
+</dd>
+</dl>
+<p>Note that it is possible for tainted coin to be so proportionally small (less than 1) that not all output can receive tainted coins</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="taintedtx.TaintedTX.limit_search_range">
+<span class="sig-name descname"><span class="pre">limit_search_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taintedtx.html#TaintedTX.limit_search_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taintedtx.TaintedTX.limit_search_range" title="Permalink to this definition"></a></dt>
+<dd><p>Limit the blockchain data frame to transactions within the assigned time range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>option</strong> – Same as limit_option in prepare_data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="taintedtx.TaintedTX.order_tainting">
+<span class="sig-name descname"><span class="pre">order_tainting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">this_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taint_record</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taintedtx.html#TaintedTX.order_tainting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taintedtx.TaintedTX.order_tainting" title="Permalink to this definition"></a></dt>
+<dd><p>Assign transaction inputs with clean or taint classification for distribution later.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tx_input</strong> – tx_input data.</p></li>
+<li><p><strong>search_df</strong> – DataFrame of transaction outputs of the current searching transaction</p></li>
+<li><p><strong>this_index</strong> – Current transaction index.</p></li>
+<li><p><strong>taint_record</strong> – The record dataframe.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame of transaction inputs</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="taintedtx.TaintedTX.policy_tx_taint">
+<span class="sig-name descname"><span class="pre">policy_tx_taint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx_tainted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_full_clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_fee_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continue_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taintedtx.html#TaintedTX.policy_tx_taint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taintedtx.TaintedTX.policy_tx_taint" title="Permalink to this definition"></a></dt>
+<dd><p>Distribute tainted coins according to the policy/strategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tx_tainted</strong> – DataFrame to perform taint analysis.</p></li>
+<li><p><strong>policy</strong> – List of accepted policy: poison, haircut, dirtyfirst/df, puredirtyfirst/pdf and variants of In-Out taint policy. In and out string can be in various acceptable variant combination, currently accept IN: f(first), l(last), t(taint), c(clan) b or h(biggest/highest), s(smallest,lowest); Out:f(first), l(last), b or h(biggest/highest) (e.g., FIFO, LIFO, TIHO).</p></li>
+<li><p><strong>test</strong> – Number to limit how many transactions to run, 0 means running until the end.</p></li>
+<li><p><strong>keep_full_clean</strong> – Keep transaction outputs with completely clean coins.</p></li>
+<li><p><strong>input_fee_file</strong> – Use transaction fee file instead of haircut fee distribution.</p></li>
+<li><p><strong>show_progress</strong> – Show progress in console.</p></li>
+<li><p><strong>continue_mode</strong> – Continue from the previous run. Will load from file with the same case_name.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame with distributed tainted coins</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="taintedtx.TaintedTX.prepare_data">
+<span class="sig-name descname"><span class="pre">prepare_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_option</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_tx_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taintedtx.html#TaintedTX.prepare_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taintedtx.TaintedTX.prepare_data" title="Permalink to this definition"></a></dt>
+<dd><p>Search for transactions or addresses, and prepare blockchain dataframe. Then fill data into class variables: tx_output, tx_input and tx_height</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adr</strong> – String or List of either internal adr index or adr hash.  Mixed types search does not work.</p></li>
+<li><p><strong>tx</strong> – String or List of either internal transaction index or transaction hash.  Mixed types search does not work.</p></li>
+<li><p><strong>limit_option</strong> – None for full blockchain search, year number (‘2017’, ‘2015to2016’, ‘2014-01-01to2014-01-31’), numpy timedelta64 type such as np.timedelta64(30,’D’) will start from the first transaction found from the parameter input while list [np.timedelta64(10,’D’), np.timedelta64(30,’D’)] will start from 10 days after the first transaction and 30 days before the first transaction.</p></li>
+<li><p><strong>save_tx_height</strong> – Save tx_height as class variable or not as it is not used in the taint analysis process.</p></li>
+<li><p><strong>case_name</strong> – String of case name for file saving.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The process currently accept only either search by adr or transaction, not both.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="taintedtx.TaintedTX.tx_check">
+<span class="sig-name descname"><span class="pre">tx_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taintedtx.html#TaintedTX.tx_check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taintedtx.TaintedTX.tx_check" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieving transaction data from tx_hash file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_type</strong> – Either ‘tx_index’ for searching with address internal index or ‘tx_hash’ for public key hash</p></li>
+<li><p><strong>tx</strong> – List of transactions to search.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame with transaction hash and index or adr.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="taintedtx.TaintedTX.tx_taint_search">
+<span class="sig-name descname"><span class="pre">tx_taint_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_tx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continue_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taint_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taintedtx.html#TaintedTX.tx_taint_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taintedtx.TaintedTX.tx_taint_search" title="Permalink to this definition"></a></dt>
+<dd><p>Search for connected transaction to the original and taint any directly connected transaction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_tx</strong> – list of transaction index to starting tainting from.</p></li>
+<li><p><strong>depth_limit</strong> – Limit how many transaction depth to search.</p></li>
+<li><p><strong>continue_mode</strong> – Continue from previous run. Will load from file with the same case_name.</p></li>
+<li><p><strong>taint_limit</strong> – list of three items [string to indicate for exclude during (‘taint’) of after tainting (‘after’), dataframe of addresses for checking, dataframe of transactions]</p></li>
+<li><p><strong>case_name</strong> – Name of the case used for saving into file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame with tainted transaction outputs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../reference.html" class="btn btn-neutral float-left" title="Library Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../adr_clustering/adr_clustering.html" class="btn btn-neutral float-right" title="Address Clustering" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Tin.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
