@@ -109,6 +109,8 @@ class TaintedTX(object):
             for this_year in self.year_list:
                 this_output = read_option(output_filename, self.path + str(this_year) + '/')
                 self.result = self.result.append(this_output[this_output['adr_index'].isin(result_df.index)])
+            self.result = self.result.reset_index().set_index("tx_index")
+            print(self.result)
 
         elif tx != '':
             logging.info('Searching for transaction data')
@@ -155,6 +157,8 @@ class TaintedTX(object):
                 check = address_df[address_df.index.isin(adr)]
             elif input_type == 'adr_hash':
                 check = address_df[address_df['adr_hash'].isin(adr)]
+            else:
+                logging.warning('input_type parameter should be either adr_index or adr_hash')
             result_df = result_df.append(check)
             result_df = result_df[~result_df.index.duplicated(keep='first')]
             if len(result_df) >= len(adr):
@@ -179,6 +183,8 @@ class TaintedTX(object):
                 check = df[df.index.isin(tx)]
             elif input_type == 'tx_hash':
                 check = df[df['tx_hash'].isin(tx)]
+            else:
+                logging.warning('input_type parameter should be either tx_index or tx_hash')
             result_df = result_df.append(check)
             result_df = result_df[~result_df.index.duplicated(keep='first')]
             if len(result_df) >= len(tx):
