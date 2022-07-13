@@ -58,6 +58,7 @@ class TaintedTX(object):
 
             self.year_list = [int(str(item).split('/')[-1]) for item in subdirectories if
                               str(item).split('/')[-1].isdigit()]  # get list of year folder
+            self.year_list.sort()
             self.tx_range_list = []  # list of tx index in each year for faster data reading
             tx_range = read_option(tx_range_filename, self.path)
             first_tx = tx_range['first_tx'].tolist()
