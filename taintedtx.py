@@ -110,7 +110,6 @@ class TaintedTX(object):
                 this_output = read_option(output_filename, self.path + str(this_year) + '/')
                 self.result = self.result.append(this_output[this_output['adr_index'].isin(result_df.index)])
             self.result = self.result.reset_index().set_index("tx_index")
-            print(self.result)
 
         elif tx != '':
             logging.info('Searching for transaction data')
