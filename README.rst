@@ -54,7 +54,7 @@ Example 2
 >>> import taintedtx
 >>> tt = taintedtx.TaintedTX(path='sampledata/')
 >>> search_tx = ['txhash1', 'txhash2']
->>> tt.prepare_data(tx=search_tx,limit_option=np.timedelta64(10, 'D'))  # search for the transaction and prepare dataframe for 10 days starting from the earliest transaction in the list, this will return result data frame with tx index that we can use for taint analysis function
+>>> tt.prepare_data(tx=search_tx, limit_option=np.timedelta64(10, 'D'))  # search for the transaction and prepare dataframe for 10 days starting from the earliest transaction in the list, this will return result data frame with tx index that we can use for taint analysis function
 >>> taint_df = tt.tx_taint_search(tt.result['tx_index'])  # perform taint analysis on the transaction
 >>> tt.policy_tx_taint(taint_df, 'fifo')  # Apply FIFO strategies distribution
 
