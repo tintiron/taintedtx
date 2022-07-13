@@ -64,7 +64,7 @@ Example 3
 >>> tt = taintedtx.TaintedTX(path='sampledata/')
 >>> search_adr = ['adrhash1']
 >>> tt.prepare_data(adr=search_tx)  # search for address and prepare dataframe of the whole blockchain data, return result data frame that contains every transaction outputs received by the addresses
->>> tt.adr_taint_search(tt.resultdf.index, depth_limit=100)  # perform address taint analysis on the transaction for 100 depth search
+>>> tt.adr_taint_search(tt.result["adr_index"], depth_limit=100)  # perform address taint analysis on the address for 100 depth search
 
 Future improvement/idea list
 =======================================
