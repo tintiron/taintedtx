@@ -874,7 +874,6 @@ class TaintedTX(object):
             else:  # don't taint any previous tx before the tainted one
                 searching_tx = tx_input[tx_input['adr_index'].isin(searching_tx['adr_index'])]
                 searching_tx = tx_output[tx_output.index.isin(searching_tx.index)]
-            print(len(done), len(searching_tx), depth)
 
             searching_tx = searching_tx[~searching_tx['adr_index'].isin(done)]
 
