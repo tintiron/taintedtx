@@ -15,7 +15,7 @@ def coinjoin_find(wasabi_pattern, tx_input, tx_output):
     """
     Profiling potential transactions involving coinjoin.
 
-    :param wasabi_pattern: list of 5 patterns [criteria type ('value' or 'proportion'), tx value, input, output, denomination output,change output].
+    :param wasabi_pattern: list of 5 patterns [criteria type ('value' or 'proportion'), tx value, output, input, denomination output,change output].
     :param tx_input: tx_input data.
     :param tx_output: tx_output data.
 
